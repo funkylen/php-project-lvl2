@@ -45,7 +45,7 @@ function getKey(array $item): string
     return $item['key'];
 }
 
-function getValue(array $item): string
+function getValue(array $item)
 {
     return $item['value'];
 }
@@ -57,17 +57,20 @@ function generateDiffString(array $items): string
     foreach ($items as $item) {
         switch (getType($item)) {
             case TYPE_ADDED:
-                $diff .= '+ ';
+                $diff .= '  + ';
                 break;
             case TYPE_REMOVED:
-                $diff .= '- ';
+                $diff .= '  - ';
                 break;
             case TYPE_UNTOUCHED:
-                $diff .= '  ';
+                $diff .= '    ';
                 break;
         }
 
-        $diff .= getKey($item) . ': ' . getValue($item) . "\n";
+        $value = getValue($item);
+        $parsedValue = is_string($value) ? $value : json_encode($value);
+
+        $diff .= getKey($item) . ': ' . $parsedValue . "\n";
     }
 
     $diff .= "}\n";
