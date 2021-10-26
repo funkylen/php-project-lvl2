@@ -13,7 +13,9 @@
             "email": "funkylen@gmail.com"
         }
     ],
-    "require": {},
+    "require": {
+        "docopt/docopt": "^1.0"
+    },
     "bin": [
         "bin/gendiff"
     ]
