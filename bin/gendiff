@@ -11,4 +11,4 @@ if (file_exists($autoloadPath1)) {
     require_once $autoloadPath2;
 }
 
-Hexlet\Code\Cli\run();
+Differ\Cli\run();

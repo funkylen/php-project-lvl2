@@ -2,10 +2,10 @@
     "name": "hexlet/code",
     "description": "Second Hexlet project",
     "license": "MIT",
-    "type": "project",
     "autoload": {
         "files": [
-            "src/Cli.php"
+            "src/Cli.php",
+            "src/Differ.php"
         ]
     },
     "authors": [

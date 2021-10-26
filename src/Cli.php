@@ -1,8 +1,10 @@
 <?php
 
-namespace Hexlet\Code\Cli;
+namespace Differ\Cli;
 
 use Docopt;
+
+use function Differ\Differ\genDiff;
 
 const DOC = <<<DOC
 gendiff -h
@@ -28,7 +30,20 @@ const PARAMS = [
 function run()
 {
     $args = Docopt::handle(DOC, PARAMS);
-    foreach ($args as $k => $v) {
-        echo $k . ': ' . json_encode($v) . PHP_EOL;
+
+    if ($args['--format']) {
+        $firstFilePath = getAbsoluteFilePath($args['<firstFile>']);
+        $secondFilePath = getAbsoluteFilePath($args['<secondFile>']);
+        $diff = genDiff($firstFilePath, $secondFilePath);
+        print_r($diff);
     }
+}
+
+function getAbsoluteFilePath(string $path): string
+{
+    if (strpos($path, '/') === 0) {
+        return $path;
+    }
+
+    return __DIR__ . '/../' . $path;
 }
