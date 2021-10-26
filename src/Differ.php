@@ -94,11 +94,11 @@ function genDiff(string $path1, string $path2): string
     foreach ($mergedContent as $key => $value) {
         if (!isset($firstFileContent[$key])) {
             $data[] = makeAdded($key, $value);
-        } else if (!isset($secondFileContent[$key])) {
+        } elseif (!isset($secondFileContent[$key])) {
             $data[] = makeRemoved($key, $value);
-        } else if ($value === $firstFileContent[$key] && $value === $secondFileContent[$key]) {
+        } elseif ($value === $firstFileContent[$key] && $value === $secondFileContent[$key]) {
             $data[] = makeUntouched($key, $value);
-        } else if ($value !== $firstFileContent[$key] && $value === $secondFileContent[$key]) {
+        } elseif ($value !== $firstFileContent[$key] && $value === $secondFileContent[$key]) {
             $data[] = makeRemoved($key, $firstFileContent[$key]);
             $data[] = makeAdded($key, $secondFileContent[$key]);
         } else {
