@@ -1,6 +1,7 @@
 {
     "name": "hexlet/code",
     "description": "Second Hexlet project",
+    "license": "MIT",
     "type": "project",
     "autoload": {
         "files": [
@@ -14,7 +15,8 @@
         }
     ],
     "require": {
-        "docopt/docopt": "^1.0"
+        "docopt/docopt": "^1.0",
+        "squizlabs/php_codesniffer": "^3.6"
     },
     "bin": [
         "bin/gendiff"
