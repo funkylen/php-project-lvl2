@@ -8,3 +8,7 @@ jobs:
       - uses: nick-zh/composer@php7.4
       - name: run tests 
         run: make test 
+      - uses: paambaati/codeclimate-action@v2.2.4
+        name: coverage
+        with:
+          coverageCommand: make test-coverage 
