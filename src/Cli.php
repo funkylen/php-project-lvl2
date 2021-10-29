@@ -31,12 +31,11 @@ function run()
 {
     $args = Docopt::handle(DOC, PARAMS);
 
-    if ($args['--format']) {
-        $firstFilePath = getAbsoluteFilePath($args['<firstFile>']);
-        $secondFilePath = getAbsoluteFilePath($args['<secondFile>']);
-        $diff = genDiff($firstFilePath, $secondFilePath);
-        print_r($diff);
-    }
+    $firstFilePath = getAbsoluteFilePath($args['<firstFile>']);
+    $secondFilePath = getAbsoluteFilePath($args['<secondFile>']);
+
+    $diff = genDiff($firstFilePath, $secondFilePath);
+    print_r($diff);
 }
 
 function getAbsoluteFilePath(string $path): string
