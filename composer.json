@@ -5,7 +5,9 @@
     "autoload": {
         "files": [
             "src/Cli.php",
-            "src/Differ.php"
+            "src/Differ.php",
+            "src/Parsers/Json.php",
+            "src/Parsers/Yaml.php"
         ]
     },
     "authors": [

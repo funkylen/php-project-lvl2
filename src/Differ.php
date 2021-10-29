@@ -4,6 +4,9 @@ namespace Differ\Differ;
 
 use Exception;
 
+use function Differ\Parsers\Json\getFileContents as JsonGetFileContents;
+use function Differ\Parsers\Yaml\getFileContents as YamlGetFileContents;
+
 const TYPE_ADDED = 'ADDED';
 const TYPE_REMOVED = 'REMOVED';
 const TYPE_UNTOUCHED = 'UNTOUCHED';
@@ -78,20 +81,34 @@ function generateDiffString(array $items): string
     return $diff;
 }
 
-function getJsonFileContents(string $path): array
+function getFileContents(string $path): array
 {
-    $content = file_get_contents($path);
-    return json_decode($content, true);
+    $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+    if ($extension === 'json') {
+        return JsonGetFileContents($path);
+    }
+
+    if (in_array($extension, ['yml', 'yaml'])) {
+        return YamlGetFileContents($path);
+    }
+
+    throw new Exception('undefined format');
+}
+
+function getKeySortedFileContents(string $path): array
+{
+    $content = getFileContents($path);
+
+    ksort($content);
+
+    return $content;
 }
 
 function genDiff(string $path1, string $path2): string
 {
-    $firstFileContent = getJsonFileContents($path1);
-    $secondFileContent = getJsonFileContents($path2);
-
-    ksort($firstFileContent);
-    ksort($secondFileContent);
-
+    $firstFileContent = getKeySortedFileContents($path1);
+    $secondFileContent = getKeySortedFileContents($path2);
     $mergedContent = array_merge($firstFileContent, $secondFileContent);
 
     foreach ($mergedContent as $key => $value) {
