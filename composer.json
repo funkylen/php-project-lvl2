@@ -20,5 +20,8 @@
     },
     "bin": [
         "bin/gendiff"
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
 }
