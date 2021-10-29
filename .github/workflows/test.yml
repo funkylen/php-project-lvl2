@@ -1,7 +1,7 @@
 name: Test 
 on: [push]
 jobs:
-  phpunit:
+  test-phpunit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

@@ -1,7 +1,7 @@
 name: Lint
 on: [push]
 jobs:
-  PSR-12:
+  lint-phpcs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
