@@ -1,0 +1,10 @@
+name: Test 
+on: [push]
+jobs:
+  Lint-With-PhpCS:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: nick-zh/composer@php7.4
+      - name: run lint
+        run: make test 
