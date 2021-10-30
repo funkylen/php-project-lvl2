@@ -14,7 +14,7 @@ class DifferTest extends TestCase
         $filePath2 = __DIR__ . '/fixtures/json/file2.json';   
         $result = genDiff($filePath1, $filePath2) ;
 
-        $diffPath = __DIR__ . '/fixtures/json/file1_file2_diff';
+        $diffPath = __DIR__ . '/fixtures/file1_file2_diff';
         $this->assertStringEqualsFile($diffPath, $result);
     }
 
@@ -24,7 +24,7 @@ class DifferTest extends TestCase
         $filePath2 = __DIR__ . '/fixtures/yaml/file2.yml';   
         $result = genDiff($filePath1, $filePath2) ;
 
-        $diffPath = __DIR__ . '/fixtures/yaml/file1_file2_diff';
+        $diffPath = __DIR__ . '/fixtures/file1_file2_diff';
         $this->assertStringEqualsFile($diffPath, $result);
     }
 }
