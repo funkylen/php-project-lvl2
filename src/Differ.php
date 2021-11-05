@@ -4,6 +4,7 @@ namespace Differ\Differ;
 
 use Exception;
 
+use Symfony\Component\Yaml\Yaml;
 use function Differ\functions\array_merge_recursive_distinct;
 use function Differ\functions\is_multidimensional_array;
 use function Differ\Parsers\Json\getFileContents as JsonGetFileContents;
@@ -66,20 +67,42 @@ function getDepth(array $item): int
     return $item['depth'];
 }
 
+function getParentKey(array $item): ?string
+{
+    return $item['parentKey'] ?? null;
+}
+
+function getSymbolForType(array $item): string
+{
+    switch (getType($item)) {
+        case TYPE_ADDED:
+            return '+';
+        case TYPE_REMOVED:
+            return '-';
+    }
+    return '';
+}
+
 function generateDiffString(array $items): string
 {
     $diff = "{\n";
 
+    $data = [];
+
     foreach ($items as $item) {
+    }
+
+    foreach ($items as $item) {
+        $diff .= str_repeat(' ', getDepth($item) . 2);
         switch (getType($item)) {
             case TYPE_ADDED:
-                $diff .= '  + ';
+                $diff .= '+ ';
                 break;
             case TYPE_REMOVED:
-                $diff .= '  - ';
+                $diff .= '- ';
                 break;
             case TYPE_UNTOUCHED:
-                $diff .= '    ';
+                $diff .= '  ';
                 break;
         }
 
@@ -109,22 +132,38 @@ function getFileContents(string $path): array
     throw new Exception('undefined format');
 }
 
-function getKeySortedFileContents(string $path): array
-{
-    $content = getFileContents($path);
-
-    ksort($content);
-
-    return $content;
-}
-
 function genDiff(string $path1, string $path2): string
 {
-    $firstFileContent = getKeySortedFileContents($path1);
-    $secondFileContent = getKeySortedFileContents($path2);
+    $firstFileContent = getFileContents($path1);
+    $secondFileContent = getFileContents($path2);
     $mergedContent = array_merge_recursive_distinct($firstFileContent, $secondFileContent);
 
     $data = iter($mergedContent, $firstFileContent, $secondFileContent, 0, []);
+
+    usort($data, static function ($a, $b) {
+        if (getDepth($a) !== getDepth($b)) {
+            return getDepth($a) < getDepth($b) ? -1 : 1;
+        }
+
+        if (getParentKey($a) !== getParentKey($b)) {
+            return strcmp(getParentKey($a), getParentKey($b));
+        }
+
+        if (getKey($a) !== getKey($b)) {
+            return strcmp(getKey($a), getKey($b));
+        }
+
+        if (getType($a) === TYPE_REMOVED) {
+            return -1;
+        }
+
+        if (getType($a) === TYPE_ADDED) {
+            return 1;
+        }
+
+        return 0;
+
+    });
 
     return generateDiffString($data);
 }
