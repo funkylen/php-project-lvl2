@@ -4,6 +4,8 @@ namespace Differ\Differ;
 
 use Exception;
 
+use function Differ\functions\array_merge_recursive_distinct;
+use function Differ\functions\is_multidimensional_array;
 use function Differ\Parsers\Json\getFileContents as JsonGetFileContents;
 use function Differ\Parsers\Yaml\getFileContents as YamlGetFileContents;
 
@@ -11,30 +13,36 @@ const TYPE_ADDED = 'ADDED';
 const TYPE_REMOVED = 'REMOVED';
 const TYPE_UNTOUCHED = 'UNTOUCHED';
 
-function makeAdded(string $key, $value): array
+function makeAdded(string $key, $value, int $depth = 0, string $parentKey = null): array
 {
     return [
         'type' => TYPE_ADDED,
         'key' => $key,
         'value' => $value,
+        'depth' => $depth,
+        'parentKey' => $parentKey,
     ];
 }
 
-function makeRemoved(string $key, $value): array
+function makeRemoved(string $key, $value, int $depth = 0, string $parentKey = null): array
 {
     return [
         'type' => TYPE_REMOVED,
         'key' => $key,
         'value' => $value,
+        'depth' => $depth,
+        'parentKey' => $parentKey,
     ];
 }
 
-function makeUntouched(string $key, $value): array
+function makeUntouched(string $key, $value, int $depth = 0, string $parentKey = null): array
 {
     return [
         'type' => TYPE_UNTOUCHED,
         'key' => $key,
         'value' => $value,
+        'depth' => $depth,
+        'parentKey' => $parentKey,
     ];
 }
 
@@ -51,6 +59,11 @@ function getKey(array $item): string
 function getValue(array $item)
 {
     return $item['value'];
+}
+
+function getDepth(array $item): int
+{
+    return $item['depth'];
 }
 
 function generateDiffString(array $items): string
@@ -109,22 +122,57 @@ function genDiff(string $path1, string $path2): string
 {
     $firstFileContent = getKeySortedFileContents($path1);
     $secondFileContent = getKeySortedFileContents($path2);
-    $mergedContent = array_merge($firstFileContent, $secondFileContent);
+    $mergedContent = array_merge_recursive_distinct($firstFileContent, $secondFileContent);
+
+    $data = iter($mergedContent, $firstFileContent, $secondFileContent, 0, []);
+
+    return generateDiffString($data);
+}
+
+function iter($mergedContent, $firstFileContent, $secondFileContent, $depth, $acc, $parentKey = null): array
+{
+    ++$depth;
+
+    if (!is_multidimensional_array($mergedContent)) {
+        return makeDiff($mergedContent, $firstFileContent, $secondFileContent, $depth, $acc, $parentKey);
+    }
 
     foreach ($mergedContent as $key => $value) {
-        if (!isset($firstFileContent[$key])) {
-            $data[] = makeAdded($key, $value);
-        } elseif (!isset($secondFileContent[$key])) {
-            $data[] = makeRemoved($key, $value);
-        } elseif ($value === $firstFileContent[$key] && $value === $secondFileContent[$key]) {
-            $data[] = makeUntouched($key, $value);
-        } elseif ($value !== $firstFileContent[$key] && $value === $secondFileContent[$key]) {
-            $data[] = makeRemoved($key, $firstFileContent[$key]);
-            $data[] = makeAdded($key, $secondFileContent[$key]);
+        if (!is_array($value)) {
+            $acc = makeDiffPlain($key, $firstFileContent, $secondFileContent, $depth, $acc, $parentKey);
+        } elseif (!array_key_exists($key, $firstFileContent)) {
+            $acc[] = makeAdded($key, $value, $depth, $parentKey);
+        } elseif (!array_key_exists($key, $secondFileContent)) {
+            $acc[] = makeRemoved($key, $value, $depth, $parentKey);
         } else {
-            throw new Exception('Error: undefined type');
+            $acc = iter($value, $firstFileContent[$key], $secondFileContent[$key], $depth, $acc, $key);
         }
     }
 
-    return generateDiffString($data);
+    return $acc;
+}
+
+function makeDiff($mergedContent, $firstFileContent, $secondFileContent, $depth, $acc, $parentKey): array
+{
+    foreach ($mergedContent as $key => $value) {
+        $acc = makeDiffPlain($key, $firstFileContent, $secondFileContent, $depth, $acc, $parentKey);
+    }
+
+    return $acc;
+}
+
+function makeDiffPlain($key, $firstFileContent, $secondFileContent, $depth = 0, $acc = [], $parentKey = null): array
+{
+    if (!array_key_exists($key, $firstFileContent)) {
+        $acc[] = makeAdded($key, $secondFileContent[$key], $depth, $parentKey);
+    } elseif (!array_key_exists($key, $secondFileContent)) {
+        $acc[] = makeRemoved($key, $firstFileContent[$key], $depth, $parentKey);
+    } elseif ($secondFileContent[$key] === $firstFileContent[$key]) {
+        $acc[] = makeUntouched($key, $firstFileContent[$key], $depth, $parentKey);
+    } else {
+        $acc[] = makeRemoved($key, $firstFileContent[$key], $depth, $parentKey);
+        $acc[] = makeAdded($key, $secondFileContent[$key], $depth, $parentKey);
+    }
+
+    return $acc;
 }
