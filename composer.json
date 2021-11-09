@@ -6,6 +6,7 @@
         "files": [
             "src/Cli.php",
             "src/Differ.php",
+            "src/DifferTypes.php",
             "src/Parsers/Json.php",
             "src/Parsers/Yaml.php"
         ]
