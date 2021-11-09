@@ -4,6 +4,7 @@ namespace Differ\DiffStringGenerator;
 
 use function Differ\DiffBuilder\getKey;
 use function Differ\DiffBuilder\getValue;
+
 use const Differ\DiffBuilder\TYPE_ADDED;
 use const Differ\DiffBuilder\TYPE_REMOVED;
 use const Differ\DiffBuilder\TYPE_UNTOUCHED;

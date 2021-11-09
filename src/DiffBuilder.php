@@ -2,7 +2,6 @@
 
 namespace Differ\DiffBuilder;
 
-
 const TYPE_ADDED = 'ADDED';
 const TYPE_REMOVED = 'REMOVED';
 const TYPE_UNTOUCHED = 'UNTOUCHED';
