@@ -3,8 +3,16 @@
 namespace Differ\DiffStringGenerator;
 
 use function Differ\DiffBuilder\getKey;
-use function Differ\DiffBuilder\getPrefix;
 use function Differ\DiffBuilder\getValue;
+use const Differ\DiffBuilder\TYPE_ADDED;
+use const Differ\DiffBuilder\TYPE_REMOVED;
+use const Differ\DiffBuilder\TYPE_UNTOUCHED;
+
+const PREFIX_ADDED = '+ ';
+const PREFIX_REMOVED = '- ';
+const PREFIX_UNTOUCHED = '  ';
+const INDENT_LENGTH = 2;
+const PREFIX_LENGTH = 2;
 
 function generateDiffString(array $diff): string
 {
@@ -15,20 +23,17 @@ function generateDiffString(array $diff): string
 
 function iter(array $diff, int $depth = 1)
 {
-    $indentLength = 2;
-    $prefixLength = 2;
-
     echo '{';
     echo PHP_EOL;
 
-    foreach ($diff as $d) {
-        $offsetLength = ($indentLength + $prefixLength) * $depth - $prefixLength;
+    foreach ($diff as $item) {
+        $offsetLength = (INDENT_LENGTH + PREFIX_LENGTH) * $depth - PREFIX_LENGTH;
         echo str_repeat(' ', $offsetLength);
-        echo getPrefix($d);
-        echo getKey($d);
+        echo getPrefix($item);
+        echo getKey($item);
         echo ': ';
 
-        $value = getValue($d);
+        $value = getValue($item);
 
         if (is_array($value)) {
             iter($value, $depth + 1);
@@ -40,10 +45,24 @@ function iter(array $diff, int $depth = 1)
     }
 
     if ($depth > 1) {
-        $endParenthesisOffsetLength = ($indentLength + $prefixLength) * ($depth - 1);
+        $endParenthesisOffsetLength = (INDENT_LENGTH + PREFIX_LENGTH) * ($depth - 1);
         echo str_repeat(' ', $endParenthesisOffsetLength);
     }
 
     echo '}';
     echo PHP_EOL;
+}
+
+function getPrefix(array $diff): string
+{
+    switch (\Differ\DiffBuilder\getType($diff)) {
+        case TYPE_ADDED:
+            return PREFIX_ADDED;
+        case TYPE_REMOVED:
+            return PREFIX_REMOVED;
+        case TYPE_UNTOUCHED:
+            return PREFIX_UNTOUCHED;
+    }
+
+    throw new \Exception('Undefined Type');
 }

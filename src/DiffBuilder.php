@@ -39,7 +39,6 @@ function makeAdded(string $key, $value): array
         'type' => TYPE_ADDED,
         'key' => $key,
         'value' => is_array($value) ? makeUntouchedRecursive($key, $value) : $value,
-        'prefix' => '+ ',
     ];
 }
 
@@ -49,7 +48,6 @@ function makeRemoved(string $key, $value): array
         'type' => TYPE_REMOVED,
         'key' => $key,
         'value' => is_array($value) ? makeUntouchedRecursive($key, $value) : $value,
-        'prefix' => '- ',
     ];
 }
 
@@ -59,7 +57,6 @@ function makeUntouched(string $key, $value): array
         'type' => TYPE_UNTOUCHED,
         'key' => $key,
         'value' => $value,
-        'prefix' => '  ',
     ];
 }
 
@@ -91,9 +88,4 @@ function getKey(array $item): string
 function getValue(array $item)
 {
     return $item['value'];
-}
-
-function getPrefix(array $item): string
-{
-    return $item['prefix'];
 }
