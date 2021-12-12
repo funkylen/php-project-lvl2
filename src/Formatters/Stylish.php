@@ -1,10 +1,9 @@
 <?php
 
-namespace Differ\DiffStringGenerator;
+namespace Differ\Formatters\Stylish;
 
 use function Differ\DiffBuilder\getKey;
 use function Differ\DiffBuilder\getValue;
-
 use const Differ\DiffBuilder\TYPE_ADDED;
 use const Differ\DiffBuilder\TYPE_REMOVED;
 use const Differ\DiffBuilder\TYPE_UNTOUCHED;
@@ -15,7 +14,7 @@ const PREFIX_UNTOUCHED = '  ';
 const INDENT_LENGTH = 2;
 const PREFIX_LENGTH = 2;
 
-function generateDiffString(array $diff): string
+function get(array $diff)
 {
     ob_start();
     iter($diff);

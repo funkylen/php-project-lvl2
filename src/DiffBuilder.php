@@ -59,21 +59,6 @@ function makeUntouched(string $key, $value): array
     ];
 }
 
-function makeUntouchedRecursive(string $key, array $value): array
-{
-    $data = [];
-
-    foreach ($value as $k => $v) {
-        if (!is_array($v)) {
-            $data[] = makeUntouched($k, $v);
-        } else {
-            $data[] = makeUntouched($k, makeUntouchedRecursive($k, $v));
-        }
-    }
-
-    return $data;
-}
-
 function getType(array $item): string
 {
     return $item['type'];
