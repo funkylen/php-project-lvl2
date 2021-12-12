@@ -37,7 +37,7 @@ function makeAdded(string $key, $value): array
     return [
         'type' => TYPE_ADDED,
         'key' => $key,
-        'value' => is_array($value) ? makeUntouchedRecursive($key, $value) : $value,
+        'value' => $value,
     ];
 }
 
@@ -46,7 +46,7 @@ function makeRemoved(string $key, $value): array
     return [
         'type' => TYPE_REMOVED,
         'key' => $key,
-        'value' => is_array($value) ? makeUntouchedRecursive($key, $value) : $value,
+        'value' => $value,
     ];
 }
 

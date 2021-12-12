@@ -27,21 +27,16 @@ function iter(array $diff, int $depth = 1)
     echo '{';
     echo PHP_EOL;
 
-    foreach ($diff as $item) {
+    foreach ($diff as $key => $item) {
         $offsetLength = (INDENT_LENGTH + PREFIX_LENGTH) * $depth - PREFIX_LENGTH;
         echo str_repeat(' ', $offsetLength);
-        echo getPrefix($item);
-        echo getKey($item);
-        echo ': ';
 
-        $value = getValue($item);
-
-        if (is_array($value)) {
-            iter($value, $depth + 1);
+        if (isDiff($item)) {
+            printDiff($item, $depth);
+        } elseif (is_array($item)) {
+            printComplexValue($key, $item, $depth);
         } else {
-            $parsedValue = is_string($value) ? $value : json_encode($value);
-            echo $parsedValue;
-            echo PHP_EOL;
+            printValue($key, $item);
         }
     }
 
@@ -54,6 +49,45 @@ function iter(array $diff, int $depth = 1)
     echo PHP_EOL;
 }
 
+function printDiff(array $diff, int $depth): void
+{
+    echo getPrefix($diff);
+    echo getKey($diff);
+    echo ': ';
+
+    $value = getValue($diff);
+
+    if (is_array($value)) {
+        iter($value, $depth + 1);
+    } else {
+        echo parseValue($value);
+        echo PHP_EOL;
+    }
+}
+
+function printComplexValue($key, array $value, int $depth): void
+{
+    echo PREFIX_UNTOUCHED;
+    echo $key;
+    echo ': ';
+    iter($value, $depth + 1);
+}
+
+function printValue($key, $value): void
+{
+    echo PREFIX_UNTOUCHED;
+    echo $key;
+    echo ': ';
+
+    echo parseValue($value);
+    echo PHP_EOL;
+}
+
+function parseValue($value): string
+{
+    return is_string($value) ? $value : json_encode($value);
+}
+
 function getPrefix(array $diff): string
 {
     switch (\Differ\DiffBuilder\getType($diff)) {
@@ -62,8 +96,24 @@ function getPrefix(array $diff): string
         case TYPE_REMOVED:
             return PREFIX_REMOVED;
         case TYPE_UNTOUCHED:
+        default:
             return PREFIX_UNTOUCHED;
     }
+}
 
-    throw new \Exception('Undefined Type');
+function isDiff($item): bool
+{
+    if (!is_array($item)) {
+        return false;
+    }
+
+    $diffKeys = ['type', 'key', 'value'];
+
+    foreach ($diffKeys as $key) {
+        if (!array_key_exists($key, $item)) {
+            return false;
+        }
+    }
+
+    return true;
 }
