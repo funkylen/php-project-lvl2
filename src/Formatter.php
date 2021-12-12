@@ -3,6 +3,7 @@
 namespace Differ\Formatter;
 
 use function Differ\Formatters\Stylish\get as getStylishDiff;
+use function Differ\Formatters\Plain\get as getPlainDiff;
 
 function getFormattedDiff(array $diff, string $format): string
 {
