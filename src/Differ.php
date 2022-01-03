@@ -5,18 +5,18 @@ namespace Differ\Differ;
 use Exception;
 
 use function Differ\DiffBuilder\getDiff;
-use function Differ\DiffStringGenerator\generateDiffString;
+use function Differ\Formatter\getFormattedDiff;
 use function Differ\Parsers\Json\getFileContents as JsonGetFileContents;
 use function Differ\Parsers\Yaml\getFileContents as YamlGetFileContents;
 
-function genDiff(string $path1, string $path2): string
+function genDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
     $firstFileContent = getFileContents($path1);
     $secondFileContent = getFileContents($path2);
 
     $diff = getDiff($firstFileContent, $secondFileContent);
 
-    return generateDiffString($diff);
+    return getFormattedDiff($diff, $format);
 }
 
 function getFileContents(string $path): array

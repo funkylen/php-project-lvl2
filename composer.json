@@ -7,9 +7,11 @@
             "src/Cli.php",
             "src/Differ.php",
             "src/DiffBuilder.php",
-            "src/DiffStringGenerator.php",
+            "src/Formatter.php",
             "src/Parsers/Json.php",
-            "src/Parsers/Yaml.php"
+            "src/Parsers/Yaml.php",
+            "src/Formatters/Stylish.php",
+            "src/Formatters/Plain.php"
         ]
     },
     "authors": [
