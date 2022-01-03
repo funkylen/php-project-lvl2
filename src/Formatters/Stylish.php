@@ -18,10 +18,10 @@ const PREFIX_LENGTH = 2;
 
 function get(array $diff): string
 {
-    return getFormattedString(prepareDiffList($diff));
+    return getFormattedString(prepareItems($diff));
 }
 
-function prepareDiffList($list)
+function prepareItems($list)
 {
     return array_reduce(getItems($list), function ($acc, $diff) {
         $key = getPrefix($diff) . getKey($diff);
@@ -29,7 +29,7 @@ function prepareDiffList($list)
         $value = getValue($diff);
 
         if (isDiffList($value)) {
-            $acc[$key] = prepareDiffList($value);
+            $acc[$key] = prepareItems($value);
         } else {
             $acc[$key] = $value;
         }
