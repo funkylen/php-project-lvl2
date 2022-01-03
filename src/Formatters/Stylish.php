@@ -2,8 +2,10 @@
 
 namespace Differ\Formatters\Stylish;
 
+use function Differ\DiffBuilder\getItems;
 use function Differ\DiffBuilder\getKey;
 use function Differ\DiffBuilder\getValue;
+use function Differ\DiffBuilder\isDiffList;
 use const Differ\DiffBuilder\TYPE_ADDED;
 use const Differ\DiffBuilder\TYPE_REMOVED;
 use const Differ\DiffBuilder\TYPE_UNTOUCHED;
@@ -14,72 +16,58 @@ const PREFIX_UNTOUCHED = '  ';
 const INDENT_LENGTH = 2;
 const PREFIX_LENGTH = 2;
 
-function get(array $diff)
+function get(array $diff): string
 {
-    ob_start();
-    iter($diff);
-    return ob_get_clean();
+    return getFormattedString(prepareDiffList($diff));
 }
 
-function iter(array $diff, int $depth = 1)
+function prepareDiffList($list)
 {
-    echo '{';
-    echo PHP_EOL;
+    return array_reduce(getItems($list), function ($acc, $diff) {
+        $key = getPrefix($diff) . getKey($diff);
 
-    foreach ($diff as $key => $item) {
-        $offsetLength = (INDENT_LENGTH + PREFIX_LENGTH) * $depth - PREFIX_LENGTH;
-        echo str_repeat(' ', $offsetLength);
+        $value = getValue($diff);
 
-        if (isDiff($item)) {
-            printDiff($item, $depth);
-        } elseif (is_array($item)) {
-            printComplexValue($key, $item, $depth);
+        if (isDiffList($value)) {
+            $acc[$key] = prepareDiffList($value);
         } else {
-            printValue($key, $item);
+            $acc[$key] = $value;
+        }
+
+        return $acc;
+    }, []);
+}
+
+function getFormattedString(array $items, int $depth = 1): string
+{
+    $formattedString = "{\n";
+
+    foreach ($items as $key => $value) {
+        $offsetLength = (INDENT_LENGTH + PREFIX_LENGTH) * $depth - PREFIX_LENGTH;
+        $formattedString .= str_repeat(' ', $offsetLength);
+
+        if (!hasPrefix($key)) {
+            $formattedString .= PREFIX_UNTOUCHED;
+        }
+
+        $formattedString .= "$key: ";
+
+        if (is_array($value)) {
+            $formattedString .= getFormattedString($value, $depth + 1);
+        } else {
+            $formattedString .= parseValue($value) . "\n";
         }
     }
 
     if ($depth > 1) {
         $endParenthesisOffsetLength = (INDENT_LENGTH + PREFIX_LENGTH) * ($depth - 1);
-        echo str_repeat(' ', $endParenthesisOffsetLength);
+        $formattedString .= str_repeat(' ', $endParenthesisOffsetLength);
     }
 
-    echo '}';
-    echo PHP_EOL;
-}
+    $formattedString .= "}\n";
 
-function printDiff(array $diff, int $depth): void
-{
-    echo getPrefix($diff);
-    echo getKey($diff);
-    echo ': ';
 
-    $value = getValue($diff);
-
-    if (is_array($value)) {
-        iter($value, $depth + 1);
-    } else {
-        echo parseValue($value);
-        echo PHP_EOL;
-    }
-}
-
-function printComplexValue($key, array $value, int $depth): void
-{
-    echo PREFIX_UNTOUCHED;
-    echo $key;
-    echo ': ';
-    iter($value, $depth + 1);
-}
-
-function printValue($key, $value): void
-{
-    echo PREFIX_UNTOUCHED;
-    echo $key;
-    echo ': ';
-
-    echo parseValue($value);
-    echo PHP_EOL;
+    return $formattedString;
 }
 
 function parseValue($value): string
@@ -100,19 +88,8 @@ function getPrefix(array $diff): string
     }
 }
 
-function isDiff($item): bool
+function hasPrefix($key): bool
 {
-    if (!is_array($item)) {
-        return false;
-    }
-
-    $diffKeys = ['type', 'key', 'value'];
-
-    foreach ($diffKeys as $key) {
-        if (!array_key_exists($key, $item)) {
-            return false;
-        }
-    }
-
-    return true;
+    $prefix = substr($key, 0, PREFIX_LENGTH);
+    return in_array($prefix, [PREFIX_ADDED, PREFIX_REMOVED, PREFIX_UNTOUCHED], true);
 }

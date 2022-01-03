@@ -10,31 +10,68 @@ function getDiff(array $array1, array $array2): array
 {
     $mergedContent = array_merge($array1, $array2);
 
-    $diff = [];
+    $list = makeDiffList();
 
     foreach ($mergedContent as $key => $value) {
         if (!array_key_exists($key, $array1)) {
-            $diff[] = makeAdded($key, $value);
+            $node = makeAdded($key, $value);
+            $list = add($node, $list);
         } elseif (!array_key_exists($key, $array2)) {
-            $diff[] = makeRemoved($key, $value);
+            $node = makeRemoved($key, $value);
+            $list = add($node, $list);
         } elseif (is_array($value)) {
-            $diff[] = makeUntouched($key, getDiff($array1[$key], $array2[$key]));
+            $node = makeUntouched($key, getDiff($array1[$key], $array2[$key]));
+            $list = add($node, $list);
         } elseif ($array2[$key] === $array1[$key]) {
-            $diff[] = makeUntouched($key, $value);
+            $node = makeUntouched($key, $value);
+            $list = add($node, $list);
         } else {
-            $diff[] = makeRemoved($key, $array1[$key]);
-            $diff[] = makeAdded($key, $array2[$key]);
+            $nodeRemoved = makeRemoved($key, $array1[$key]);
+            $list = add($nodeRemoved, $list);
+
+            $nodeAdded = makeAdded($key, $array2[$key]);
+            $list = add($nodeAdded, $list);
         }
     }
 
-    usort($diff, fn($a, $b) => strcmp(getKey($a), getKey($b)));
+    return $list;
+}
 
-    return $diff;
+function makeDiffList(): array
+{
+    return [
+        'isDiff' => true,
+        'items' => [],
+    ];
+}
+
+function isDiffList($list): bool
+{
+    if (!is_array($list)) {
+        return false;
+    }
+
+    return array_key_exists('isDiff', $list) && $list['isDiff'] === true;
+}
+
+function getItems(array $list)
+{
+    return $list['items'];
+}
+
+function add($item, $list): array
+{
+    $list['items'][] = $item;
+
+    usort($list['items'], fn($a, $b) => strcmp(getKey($a), getKey($b)));
+
+    return $list;
 }
 
 function makeAdded(string $key, $value): array
 {
     return [
+        'isDiffItem' => true,
         'type' => TYPE_ADDED,
         'key' => $key,
         'value' => $value,
@@ -44,6 +81,7 @@ function makeAdded(string $key, $value): array
 function makeRemoved(string $key, $value): array
 {
     return [
+        'isDiffItem' => true,
         'type' => TYPE_REMOVED,
         'key' => $key,
         'value' => $value,
@@ -53,10 +91,20 @@ function makeRemoved(string $key, $value): array
 function makeUntouched(string $key, $value): array
 {
     return [
+        'isDiffItem' => true,
         'type' => TYPE_UNTOUCHED,
         'key' => $key,
         'value' => $value,
     ];
+}
+
+function isDiffItem($item): bool
+{
+    if (!is_array($item)) {
+        return false;
+    }
+
+    return array_key_exists('isDiffItem', $item) && $item['isDiffItem'] === true;
 }
 
 function getType(array $item): string
