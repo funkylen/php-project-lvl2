@@ -137,7 +137,7 @@ function makeAdded(string $key, $value): array
 }
 
 /**
- * @param $node
+ * @param mixed $node
  * @return bool
  * @throws Exception
  */
@@ -163,7 +163,7 @@ function makeRemoved(string $key, $value): array
 }
 
 /**
- * @param $node
+ * @param mixed $node
  * @return bool
  * @throws Exception
  */
@@ -189,7 +189,7 @@ function makeUntouched(string $key, $value): array
 }
 
 /**
- * @param $node
+ * @param mixed $node
  * @return bool
  * @throws Exception
  */
@@ -217,7 +217,7 @@ function makeUpdated(string $key, $oldValue, $newValue): array
 }
 
 /**
- * @param $node
+ * @param mixed $node
  * @return bool
  * @throws Exception
  */
