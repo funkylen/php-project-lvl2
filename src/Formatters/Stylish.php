@@ -2,41 +2,64 @@
 
 namespace Differ\Formatters\Stylish;
 
-use function Differ\DiffBuilder\getItems;
+use function Differ\DiffBuilder\getChildren;
 use function Differ\DiffBuilder\getKey;
+use function Differ\DiffBuilder\getOldValue;
 use function Differ\DiffBuilder\getValue;
-use function Differ\DiffBuilder\isDiffList;
-
-use const Differ\DiffBuilder\TYPE_ADDED;
-use const Differ\DiffBuilder\TYPE_REMOVED;
-use const Differ\DiffBuilder\TYPE_UNTOUCHED;
+use function Differ\DiffBuilder\isAddedNode;
+use function Differ\DiffBuilder\isDiff;
+use function Differ\DiffBuilder\isRemovedNode;
+use function Differ\DiffBuilder\isUntouchedNode;
+use function Differ\DiffBuilder\isUpdatedNode;
 
 const PREFIX_ADDED = '+ ';
 const PREFIX_REMOVED = '- ';
 const PREFIX_UNTOUCHED = '  ';
+
 const INDENT_LENGTH = 2;
 const PREFIX_LENGTH = 2;
 
 function get(array $diff): string
 {
-    return getFormattedString(prepareItems($diff));
+    return getFormattedString(prepareDiff($diff));
 }
 
-function prepareItems($list)
+function prepareDiff($diff)
 {
-    return array_reduce(getItems($list), function ($acc, $diff) {
-        $key = getPrefix($diff) . getKey($diff);
+    return array_reduce(getChildren($diff), function ($acc, $node) {
+        if (isUpdatedNode($node)) {
+            $removedValueKey = PREFIX_REMOVED . getKey($node);
+            $acc[$removedValueKey] = getOldValue($node);
 
-        $value = getValue($diff);
+            $addedValueKey = PREFIX_ADDED . getKey($node);
+            $acc[$addedValueKey] = getValue($node);
 
-        if (isDiffList($value)) {
-            $acc[$key] = prepareItems($value);
-        } else {
-            $acc[$key] = $value;
+            return $acc;
         }
+
+        $key = getPrefix($node) . getKey($node);
+
+        $value = getValue($node);
+
+        $acc[$key] = isUntouchedNode($node) && isDiff($value)
+            ? prepareDiff($value)
+            : $value;
 
         return $acc;
     }, []);
+}
+
+function getPrefix(array $node): string
+{
+    if (isAddedNode($node)) {
+        return PREFIX_ADDED;
+    }
+
+    if (isRemovedNode($node)) {
+        return PREFIX_REMOVED;
+    }
+
+    return PREFIX_UNTOUCHED;
 }
 
 function getFormattedString(array $items, int $depth = 1): string
@@ -71,26 +94,13 @@ function getFormattedString(array $items, int $depth = 1): string
     return $formattedString;
 }
 
-function parseValue($value): string
-{
-    return is_string($value) ? $value : json_encode($value);
-}
-
-function getPrefix(array $diff): string
-{
-    switch (\Differ\DiffBuilder\getType($diff)) {
-        case TYPE_ADDED:
-            return PREFIX_ADDED;
-        case TYPE_REMOVED:
-            return PREFIX_REMOVED;
-        case TYPE_UNTOUCHED:
-        default:
-            return PREFIX_UNTOUCHED;
-    }
-}
-
 function hasPrefix($key): bool
 {
     $prefix = substr($key, 0, PREFIX_LENGTH);
     return in_array($prefix, [PREFIX_ADDED, PREFIX_REMOVED, PREFIX_UNTOUCHED], true);
+}
+
+function parseValue($value): string
+{
+    return is_string($value) ? $value : json_encode($value);
 }

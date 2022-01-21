@@ -2,76 +2,87 @@
 
 namespace Differ\Formatters\Plain;
 
-use function Differ\DiffBuilder\getItems;
+use function Differ\DiffBuilder\getChildren;
 use function Differ\DiffBuilder\getKey;
+use function Differ\DiffBuilder\getOldValue;
 use function Differ\DiffBuilder\getValue;
 use function Differ\DiffBuilder\getType;
-use function Differ\DiffBuilder\isDiffList;
+use function Differ\DiffBuilder\isDiff;
 
 use const Differ\DiffBuilder\TYPE_ADDED;
 use const Differ\DiffBuilder\TYPE_REMOVED;
+use const Differ\DiffBuilder\TYPE_UNTOUCHED;
+use const Differ\DiffBuilder\TYPE_UPDATED;
 
-const TYPE_UPDATED = 'UPDATED';
-
-function get(array $diff)
+function get(array $diff): string
 {
-    return getFormattedString(prepareItems(($diff)));
+    return getFormattedString(prepareDiff(($diff)));
 }
 
-function prepareItems(array $list, string $rootPath = ''): array
+function prepareDiff(array $diff, string $rootPath = ''): array
 {
-    return array_reduce(getItems($list), function ($acc, $diff) use ($rootPath) {
-        $key = getKey($diff);
+    return array_reduce(getChildren($diff), function ($acc, $node) use ($rootPath) {
+        $key = getKey($node);
 
         $path = empty($rootPath) ? $key : "$rootPath.$key";
 
-        $value = getValue($diff);
+        $value = getValue($node);
 
-        if (isDiffList($value)) {
-            return array_merge($acc, prepareItems($value, $path));
+        if (getType($node) === TYPE_UNTOUCHED) {
+            return isDiff($value) ? array_merge($acc, prepareDiff($value, $path)) : $acc;
         }
 
-        if (!in_array(getType($diff), [TYPE_ADDED, TYPE_REMOVED], true)) {
-            return $acc;
-        }
-
-        $diff = [
-            'path' => $path,
-            'value' => parseValue($value),
-            'type' => getType($diff),
-        ];
-
-        $prevItem = end($acc);
-
-        if ($prevItem && $prevItem['path'] === $path && $prevItem['type'] === TYPE_REMOVED) {
-            $diff['type'] = TYPE_UPDATED;
-            $diff['oldValue'] = $prevItem['value'];
-        }
-
-        $acc[$path] = $diff;
+        $acc[$path] = makePlainDiffNode($path, $node);
 
         return $acc;
     }, []);
 }
 
+function makePlainDiffNode(string $path, array $node): array
+{
+    return [
+        'path' => $path,
+        'node' => $node,
+    ];
+}
+
+function getPath(array $plainDiffItem): string
+{
+    return $plainDiffItem['path'];
+}
+
+function getNode(array $plainDiffItem): array
+{
+    return $plainDiffItem['node'];
+}
+
 function getFormattedString($items): string
 {
-    return array_reduce($items, function ($formattedString, $item) {
-        $formattedString .= "Property '{$item['path']}'";
+    return array_reduce($items, function ($formattedString, $plainDiffNode) {
+        $path = getPath($plainDiffNode);
+        $formattedString .= "Property '{$path}'";
 
-        switch ($item['type']) {
-            case TYPE_ADDED:
-                $formattedString .= " was added with value: {$item['value']}\n";
-                return $formattedString;
-            case TYPE_REMOVED:
-                $formattedString .= " was removed\n";
-                return $formattedString;
-            case TYPE_UPDATED:
-                $formattedString .= " was updated. From {$item['oldValue']} to {$item['value']}\n";
-                return $formattedString;
-            default:
-                throw new \Exception('Undefined type');
+        $node = getNode($plainDiffNode);
+
+        if (getType($node) === TYPE_ADDED) {
+            $value = parseValue(getValue($node));
+            $formattedString .= " was added with value: {$value}\n";
+            return $formattedString;
         }
+
+        if (getType($node) === TYPE_REMOVED) {
+            $formattedString .= " was removed\n";
+            return $formattedString;
+        }
+
+        if (getType($node) === TYPE_UPDATED) {
+            $oldValue = parseValue(getOldValue($node));
+            $value = parseValue(getValue($node));
+            $formattedString .= " was updated. From {$oldValue} to {$value}\n";
+            return $formattedString;
+        }
+
+        throw new \Exception('Undefined type');
     }, '');
 }
 
