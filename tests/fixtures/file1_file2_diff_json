@@ -1,0 +1,149 @@
+{
+    "entity": "__diff__",
+    "children": [
+        {
+            "entity": "__diff_node__",
+            "type": "__diff_type_untouched__",
+            "key": "common",
+            "value": {
+                "entity": "__diff__",
+                "children": [
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_added__",
+                        "key": "follow",
+                        "value": false
+                    },
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_untouched__",
+                        "key": "setting1",
+                        "value": "Value 1"
+                    },
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_removed__",
+                        "key": "setting2",
+                        "value": 200
+                    },
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_updated__",
+                        "key": "setting3",
+                        "oldValue": true,
+                        "value": null
+                    },
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_added__",
+                        "key": "setting4",
+                        "value": "blah blah"
+                    },
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_added__",
+                        "key": "setting5",
+                        "value": {
+                            "key5": "value5"
+                        }
+                    },
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_untouched__",
+                        "key": "setting6",
+                        "value": {
+                            "entity": "__diff__",
+                            "children": [
+                                {
+                                    "entity": "__diff_node__",
+                                    "type": "__diff_type_untouched__",
+                                    "key": "doge",
+                                    "value": {
+                                        "entity": "__diff__",
+                                        "children": [
+                                            {
+                                                "entity": "__diff_node__",
+                                                "type": "__diff_type_updated__",
+                                                "key": "wow",
+                                                "oldValue": "",
+                                                "value": "so much"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "entity": "__diff_node__",
+                                    "type": "__diff_type_untouched__",
+                                    "key": "key",
+                                    "value": "value"
+                                },
+                                {
+                                    "entity": "__diff_node__",
+                                    "type": "__diff_type_added__",
+                                    "key": "ops",
+                                    "value": "vops"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "entity": "__diff_node__",
+            "type": "__diff_type_untouched__",
+            "key": "group1",
+            "value": {
+                "entity": "__diff__",
+                "children": [
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_updated__",
+                        "key": "baz",
+                        "oldValue": "bas",
+                        "value": "bars"
+                    },
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_untouched__",
+                        "key": "foo",
+                        "value": "bar"
+                    },
+                    {
+                        "entity": "__diff_node__",
+                        "type": "__diff_type_updated__",
+                        "key": "nest",
+                        "oldValue": {
+                            "key": "value"
+                        },
+                        "value": "str"
+                    }
+                ]
+            }
+        },
+        {
+            "entity": "__diff_node__",
+            "type": "__diff_type_removed__",
+            "key": "group2",
+            "value": {
+                "abc": 12345,
+                "deep": {
+                    "id": 45
+                }
+            }
+        },
+        {
+            "entity": "__diff_node__",
+            "type": "__diff_type_added__",
+            "key": "group3",
+            "value": {
+                "deep": {
+                    "id": {
+                        "number": 45
+                    }
+                },
+                "fee": 100500
+            }
+        }
+    ]
+}

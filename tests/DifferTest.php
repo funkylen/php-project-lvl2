@@ -10,9 +10,9 @@ class DifferTest extends TestCase
 {
     public function testGenDiffStylishJson(): void
     {
-        $filePath1 = __DIR__ . '/fixtures/json/file1.json';   
-        $filePath2 = __DIR__ . '/fixtures/json/file2.json';   
-        $result = genDiff($filePath1, $filePath2) ;
+        $filePath1 = __DIR__ . '/fixtures/json/file1.json';
+        $filePath2 = __DIR__ . '/fixtures/json/file2.json';
+        $result = genDiff($filePath1, $filePath2);
 
         $diffPath = __DIR__ . '/fixtures/file1_file2_diff';
         $this->assertStringEqualsFile($diffPath, $result);
@@ -20,9 +20,9 @@ class DifferTest extends TestCase
 
     public function testGenDiffStylishYaml(): void
     {
-        $filePath1 = __DIR__ . '/fixtures/yaml/file1.yaml';   
-        $filePath2 = __DIR__ . '/fixtures/yaml/file2.yml';   
-        $result = genDiff($filePath1, $filePath2) ;
+        $filePath1 = __DIR__ . '/fixtures/yaml/file1.yaml';
+        $filePath2 = __DIR__ . '/fixtures/yaml/file2.yml';
+        $result = genDiff($filePath1, $filePath2);
 
         $diffPath = __DIR__ . '/fixtures/file1_file2_diff';
         $this->assertStringEqualsFile($diffPath, $result);
@@ -32,7 +32,7 @@ class DifferTest extends TestCase
     {
         $filePath1 = __DIR__ . '/fixtures/json/file1.json';
         $filePath2 = __DIR__ . '/fixtures/json/file2.json';
-        $result = genDiff($filePath1, $filePath2, 'plain') ;
+        $result = genDiff($filePath1, $filePath2, 'plain');
 
         $diffPath = __DIR__ . '/fixtures/file1_file2_diff_plain';
         $this->assertStringEqualsFile($diffPath, $result);
@@ -42,9 +42,30 @@ class DifferTest extends TestCase
     {
         $filePath1 = __DIR__ . '/fixtures/yaml/file1.yaml';
         $filePath2 = __DIR__ . '/fixtures/yaml/file2.yml';
-        $result = genDiff($filePath1, $filePath2, 'plain') ;
+        $result = genDiff($filePath1, $filePath2, 'plain');
 
         $diffPath = __DIR__ . '/fixtures/file1_file2_diff_plain';
+        $this->assertStringEqualsFile($diffPath, $result);
+    }
+
+
+    public function testGenDiffPJsonJson(): void
+    {
+        $filePath1 = __DIR__ . '/fixtures/json/file1.json';
+        $filePath2 = __DIR__ . '/fixtures/json/file2.json';
+        $result = genDiff($filePath1, $filePath2, 'json');
+
+        $diffPath = __DIR__ . '/fixtures/file1_file2_diff_json';
+        $this->assertStringEqualsFile($diffPath, $result);
+    }
+
+    public function testGenDiffJsonYaml(): void
+    {
+        $filePath1 = __DIR__ . '/fixtures/yaml/file1.yaml';
+        $filePath2 = __DIR__ . '/fixtures/yaml/file2.yml';
+        $result = genDiff($filePath1, $filePath2, 'json');
+
+        $diffPath = __DIR__ . '/fixtures/file1_file2_diff_json';
         $this->assertStringEqualsFile($diffPath, $result);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Differ\DiffBuilder;
 
-const DIFF_MARKER = '__diff__';
-const NODE_MARKER = '__diff_node__';
+const DIFF = '__diff__';
+const NODE = '__diff_node__';
 
 const TYPE_ADDED = '__diff_type_added__';
 const TYPE_REMOVED = '__diff_type_removed__';
@@ -42,18 +42,18 @@ function getDiff(array $array1, array $array2): array
 function makeDiff(): array
 {
     return [
-        DIFF_MARKER,
+        'entity' => DIFF,
         'children' => [],
     ];
 }
 
 function isDiff($diff): bool
 {
-    if (!is_array($diff) || !array_key_exists(0, $diff)) {
+    if (!is_array($diff) || !array_key_exists('entity', $diff)) {
         return false;
     }
 
-    return $diff[0] === DIFF_MARKER;
+    return $diff['entity'] === DIFF;
 }
 
 function getChildren(array $diff)
@@ -91,7 +91,7 @@ function validateDiff(array $diff)
 function makeAdded(string $key, $value): array
 {
     return [
-        NODE_MARKER,
+        'entity' => NODE,
         'type' => TYPE_ADDED,
         'key' => $key,
         'value' => $value,
@@ -107,7 +107,7 @@ function isAddedNode($node): bool
 function makeRemoved(string $key, $value): array
 {
     return [
-        NODE_MARKER,
+        'entity' => NODE,
         'type' => TYPE_REMOVED,
         'key' => $key,
         'value' => $value,
@@ -123,7 +123,7 @@ function isRemovedNode($node): bool
 function makeUntouched(string $key, $value): array
 {
     return [
-        NODE_MARKER,
+        'entity' => NODE,
         'type' => TYPE_UNTOUCHED,
         'key' => $key,
         'value' => $value,
@@ -139,7 +139,7 @@ function isUntouchedNode($node): bool
 function makeUpdated(string $key, $oldValue, $newValue): array
 {
     return [
-        NODE_MARKER,
+        'entity' => NODE,
         'type' => TYPE_UPDATED,
         'key' => $key,
         'oldValue' => $oldValue,
@@ -155,11 +155,11 @@ function isUpdatedNode($node): bool
 
 function isNode($node): bool
 {
-    if (!is_array($node) || !array_key_exists(0, $node)) {
+    if (!is_array($node) || !array_key_exists('entity', $node)) {
         return false;
     }
 
-    return $node[0] === NODE_MARKER;
+    return $node['entity'] === NODE;
 }
 
 function getType(array $node): string
