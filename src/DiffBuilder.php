@@ -2,6 +2,9 @@
 
 namespace Differ\DiffBuilder;
 
+const DIFF_ID = '__diff__';
+const NODE_ID = '__diff_node__';
+
 const TYPE_ADDED = 'ADDED';
 const TYPE_REMOVED = 'REMOVED';
 const TYPE_UNTOUCHED = 'UNTOUCHED';
@@ -10,68 +13,72 @@ function getDiff(array $array1, array $array2): array
 {
     $mergedContent = array_merge($array1, $array2);
 
-    $list = makeDiffList();
+    $list = makeDiff();
 
     foreach ($mergedContent as $key => $value) {
         if (!array_key_exists($key, $array1)) {
             $node = makeAdded($key, $value);
-            $list = add($node, $list);
+            $list = addNode($node, $list);
         } elseif (!array_key_exists($key, $array2)) {
             $node = makeRemoved($key, $value);
-            $list = add($node, $list);
+            $list = addNode($node, $list);
         } elseif (is_array($value)) {
             $node = makeUntouched($key, getDiff($array1[$key], $array2[$key]));
-            $list = add($node, $list);
+            $list = addNode($node, $list);
         } elseif ($array2[$key] === $array1[$key]) {
             $node = makeUntouched($key, $value);
-            $list = add($node, $list);
+            $list = addNode($node, $list);
         } else {
             $nodeRemoved = makeRemoved($key, $array1[$key]);
-            $list = add($nodeRemoved, $list);
+            $list = addNode($nodeRemoved, $list);
 
             $nodeAdded = makeAdded($key, $array2[$key]);
-            $list = add($nodeAdded, $list);
+            $list = addNode($nodeAdded, $list);
         }
     }
 
     return $list;
 }
 
-function makeDiffList(): array
+function makeDiff(): array
 {
     return [
-        'isDiff' => true,
+        DIFF_ID,
         'items' => [],
     ];
 }
 
-function isDiffList($list): bool
+function isDiff($diff): bool
 {
-    if (!is_array($list)) {
+    if (!is_array($diff) || !array_key_exists(0, $diff)) {
         return false;
     }
 
-    return array_key_exists('isDiff', $list) && $list['isDiff'] === true;
+    return $diff[0] === DIFF_ID;
 }
 
-function getItems(array $list)
+function getItems(array $diff)
 {
-    return $list['items'];
+    return $diff['items'];
 }
 
-function add($item, $list): array
+function addNode(array $node, array $diff): array
 {
-    $list['items'][] = $item;
+    if (!isNode($node)) {
+        throw new \Exception('You can add only diff nodes!');
+    }
 
-    usort($list['items'], fn($a, $b) => strcmp(getKey($a), getKey($b)));
+    $diff['items'][] = $node;
 
-    return $list;
+    usort($diff['items'], fn($a, $b) => strcmp(getKey($a), getKey($b)));
+
+    return $diff;
 }
 
 function makeAdded(string $key, $value): array
 {
     return [
-        'isDiffItem' => true,
+        NODE_ID,
         'type' => TYPE_ADDED,
         'key' => $key,
         'value' => $value,
@@ -81,7 +88,7 @@ function makeAdded(string $key, $value): array
 function makeRemoved(string $key, $value): array
 {
     return [
-        'isDiffItem' => true,
+        NODE_ID,
         'type' => TYPE_REMOVED,
         'key' => $key,
         'value' => $value,
@@ -91,33 +98,33 @@ function makeRemoved(string $key, $value): array
 function makeUntouched(string $key, $value): array
 {
     return [
-        'isDiffItem' => true,
+        NODE_ID,
         'type' => TYPE_UNTOUCHED,
         'key' => $key,
         'value' => $value,
     ];
 }
 
-function isDiffItem($item): bool
+function isNode($node): bool
 {
-    if (!is_array($item)) {
+    if (!is_array($node) || !array_key_exists(0, $node)) {
         return false;
     }
 
-    return array_key_exists('isDiffItem', $item) && $item['isDiffItem'] === true;
+    return $node[0] === NODE_ID;
 }
 
-function getType(array $item): string
+function getType(array $node): string
 {
-    return $item['type'];
+    return $node['type'];
 }
 
-function getKey(array $item): string
+function getKey(array $node): string
 {
-    return $item['key'];
+    return $node['key'];
 }
 
-function getValue(array $item)
+function getValue(array $node)
 {
-    return $item['value'];
+    return $node['value'];
 }

@@ -5,7 +5,7 @@ namespace Differ\Formatters\Stylish;
 use function Differ\DiffBuilder\getItems;
 use function Differ\DiffBuilder\getKey;
 use function Differ\DiffBuilder\getValue;
-use function Differ\DiffBuilder\isDiffList;
+use function Differ\DiffBuilder\isDiff;
 
 use const Differ\DiffBuilder\TYPE_ADDED;
 use const Differ\DiffBuilder\TYPE_REMOVED;
@@ -29,7 +29,7 @@ function prepareItems($list)
 
         $value = getValue($diff);
 
-        if (isDiffList($value)) {
+        if (isDiff($value)) {
             $acc[$key] = prepareItems($value);
         } else {
             $acc[$key] = $value;
