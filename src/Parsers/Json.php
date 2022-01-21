@@ -6,7 +6,7 @@ function getFileContents(string $path): array
 {
     $content = file_get_contents($path);
 
-    if (!$content) {
+    if ($content === false) {
         throw new \Exception("Can't read file contents :(");
     }
 
