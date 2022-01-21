@@ -8,9 +8,7 @@ use function Differ\DiffBuilder\getOldValue;
 use function Differ\DiffBuilder\getValue;
 use function Differ\DiffBuilder\isAddedNode;
 use function Differ\DiffBuilder\isDiff;
-
 use function Differ\DiffBuilder\isRemovedNode;
-
 use function Differ\DiffBuilder\isUntouchedNode;
 use function Differ\DiffBuilder\isUpdatedNode;
 
