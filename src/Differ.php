@@ -29,7 +29,7 @@ function getFileContents(string $path): array
         return JsonGetFileContents($path);
     }
 
-    if (in_array($extension, ['yml', 'yaml'])) {
+    if (in_array($extension, ['yml', 'yaml'], true)) {
         return YamlGetFileContents($path);
     }
 

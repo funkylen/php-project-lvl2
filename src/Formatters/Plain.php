@@ -6,13 +6,13 @@ use function Differ\DiffBuilder\getChildren;
 use function Differ\DiffBuilder\getKey;
 use function Differ\DiffBuilder\getOldValue;
 use function Differ\DiffBuilder\getValue;
-use function Differ\DiffBuilder\getType;
+use function Differ\DiffBuilder\isAddedNode;
 use function Differ\DiffBuilder\isDiff;
 
-use const Differ\DiffBuilder\TYPE_ADDED;
-use const Differ\DiffBuilder\TYPE_REMOVED;
-use const Differ\DiffBuilder\TYPE_UNTOUCHED;
-use const Differ\DiffBuilder\TYPE_UPDATED;
+use function Differ\DiffBuilder\isRemovedNode;
+
+use function Differ\DiffBuilder\isUntouchedNode;
+use function Differ\DiffBuilder\isUpdatedNode;
 
 function get(array $diff): string
 {
@@ -24,11 +24,11 @@ function prepareDiff(array $diff, string $rootPath = ''): array
     return array_reduce(getChildren($diff), function ($acc, $node) use ($rootPath) {
         $key = getKey($node);
 
-        $path = empty($rootPath) ? $key : "$rootPath.$key";
+        $path = $rootPath === '' ? $key : "$rootPath.$key";
 
         $value = getValue($node);
 
-        if (getType($node) === TYPE_UNTOUCHED) {
+        if (isUntouchedNode($node)) {
             return isDiff($value) ? array_merge($acc, prepareDiff($value, $path)) : $acc;
         }
 
@@ -56,7 +56,7 @@ function getNode(array $plainDiffItem): array
     return $plainDiffItem['node'];
 }
 
-function getFormattedString($items): string
+function getFormattedString(array $items): string
 {
     return array_reduce($items, function ($formattedString, $plainDiffNode) {
         $path = getPath($plainDiffNode);
@@ -64,18 +64,18 @@ function getFormattedString($items): string
 
         $node = getNode($plainDiffNode);
 
-        if (getType($node) === TYPE_ADDED) {
+        if (isAddedNode($node)) {
             $value = parseValue(getValue($node));
             $formattedString .= " was added with value: {$value}\n";
             return $formattedString;
         }
 
-        if (getType($node) === TYPE_REMOVED) {
+        if (isRemovedNode($node)) {
             $formattedString .= " was removed\n";
             return $formattedString;
         }
 
-        if (getType($node) === TYPE_UPDATED) {
+        if (isUpdatedNode($node)) {
             $oldValue = parseValue(getOldValue($node));
             $value = parseValue(getValue($node));
             $formattedString .= " was updated. From {$oldValue} to {$value}\n";
@@ -86,6 +86,10 @@ function getFormattedString($items): string
     }, '');
 }
 
+/**
+ * @param mixed $value
+ * @return string
+ */
 function parseValue($value): string
 {
     if (is_array($value)) {

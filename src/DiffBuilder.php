@@ -2,6 +2,8 @@
 
 namespace Differ\DiffBuilder;
 
+use Exception;
+
 const DIFF = '__diff__';
 const NODE = '__diff_node__';
 
@@ -10,6 +12,12 @@ const TYPE_REMOVED = '__diff_type_removed__';
 const TYPE_UNTOUCHED = '__diff_type_untouched__';
 const TYPE_UPDATED = '__diff_type_updated__';
 
+/**
+ * @param mixed $array1
+ * @param mixed $array2
+ * @return array
+ * @throws Exception
+ */
 function getDiff($array1, $array2): array
 {
     $mergedContent = array_merge($array1, $array2);
@@ -47,6 +55,10 @@ function makeDiff(): array
     ];
 }
 
+/**
+ * @param mixed $diff
+ * @return bool
+ */
 function isDiff($diff): bool
 {
     if (!is_array($diff) || !array_key_exists('entity', $diff)) {
@@ -56,12 +68,23 @@ function isDiff($diff): bool
     return $diff['entity'] === DIFF;
 }
 
+/**
+ * @param array $diff
+ * @return mixed
+ * @throws Exception
+ */
 function getChildren(array $diff)
 {
     validateDiff($diff);
     return $diff['children'];
 }
 
+/**
+ * @param array $node
+ * @param array $diff
+ * @return array
+ * @throws Exception
+ */
 function addNode(array $node, array $diff): array
 {
     validateNode($node);
@@ -74,20 +97,35 @@ function addNode(array $node, array $diff): array
     return $diff;
 }
 
+/**
+ * @param array $node
+ * @return void
+ * @throws Exception
+ */
 function validateNode(array $node)
 {
     if (!isNode($node)) {
-        throw new \Exception('Item is not node!');
+        throw new Exception('Item is not node!');
     }
 }
 
+/**
+ * @param array $diff
+ * @return void
+ * @throws Exception
+ */
 function validateDiff(array $diff)
 {
     if (!isDiff($diff)) {
-        throw new \Exception('Item is not diff!');
+        throw new Exception('Item is not diff!');
     }
 }
 
+/**
+ * @param string $key
+ * @param mixed $value
+ * @return array
+ */
 function makeAdded(string $key, $value): array
 {
     return [
@@ -98,12 +136,22 @@ function makeAdded(string $key, $value): array
     ];
 }
 
+/**
+ * @param $node
+ * @return bool
+ * @throws Exception
+ */
 function isAddedNode($node): bool
 {
     validateNode($node);
     return getType($node) === TYPE_ADDED;
 }
 
+/**
+ * @param string $key
+ * @param mixed $value
+ * @return array
+ */
 function makeRemoved(string $key, $value): array
 {
     return [
@@ -114,12 +162,22 @@ function makeRemoved(string $key, $value): array
     ];
 }
 
+/**
+ * @param $node
+ * @return bool
+ * @throws Exception
+ */
 function isRemovedNode($node): bool
 {
     validateNode($node);
     return getType($node) === TYPE_REMOVED;
 }
 
+/**
+ * @param string $key
+ * @param mixed $value
+ * @return array
+ */
 function makeUntouched(string $key, $value): array
 {
     return [
@@ -130,12 +188,23 @@ function makeUntouched(string $key, $value): array
     ];
 }
 
+/**
+ * @param $node
+ * @return bool
+ * @throws Exception
+ */
 function isUntouchedNode($node): bool
 {
     validateNode($node);
     return getType($node) === TYPE_UNTOUCHED;
 }
 
+/**
+ * @param string $key
+ * @param mixed $oldValue
+ * @param mixed $newValue
+ * @return array
+ */
 function makeUpdated(string $key, $oldValue, $newValue): array
 {
     return [
@@ -147,12 +216,21 @@ function makeUpdated(string $key, $oldValue, $newValue): array
     ];
 }
 
+/**
+ * @param $node
+ * @return bool
+ * @throws Exception
+ */
 function isUpdatedNode($node): bool
 {
     validateNode($node);
     return getType($node) === TYPE_UPDATED;
 }
 
+/**
+ * @param mixed $node
+ * @return bool
+ */
 function isNode($node): bool
 {
     if (!is_array($node) || !array_key_exists('entity', $node)) {
@@ -162,30 +240,50 @@ function isNode($node): bool
     return $node['entity'] === NODE;
 }
 
+/**
+ * @param array $node
+ * @return string
+ * @throws Exception
+ */
 function getType(array $node): string
 {
     validateNode($node);
     return $node['type'];
 }
 
+/**
+ * @param array $node
+ * @return string
+ * @throws Exception
+ */
 function getKey(array $node): string
 {
     validateNode($node);
     return $node['key'];
 }
 
+/**
+ * @param array $node
+ * @return mixed
+ * @throws Exception
+ */
 function getValue(array $node)
 {
     validateNode($node);
     return $node['value'];
 }
 
+/**
+ * @param array $node
+ * @return mixed
+ * @throws Exception
+ */
 function getOldValue(array $node)
 {
     validateNode($node);
 
     if (!isUpdatedNode($node)) {
-        throw new \Exception('Node type needs to be updated for get old value');
+        throw new Exception('Node type needs to be updated for get old value');
     }
 
     return $node['oldValue'];
