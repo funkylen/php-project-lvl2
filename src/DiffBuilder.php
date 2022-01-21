@@ -2,49 +2,48 @@
 
 namespace Differ\DiffBuilder;
 
-const DIFF_ID = '__diff__';
-const NODE_ID = '__diff_node__';
+const DIFF_MARKER = '__diff__';
+const NODE_MARKER = '__diff_node__';
 
-const TYPE_ADDED = 'ADDED';
-const TYPE_REMOVED = 'REMOVED';
-const TYPE_UNTOUCHED = 'UNTOUCHED';
+const TYPE_ADDED = '__diff_type_added__';
+const TYPE_REMOVED = '__diff_type_removed__';
+const TYPE_UNTOUCHED = '__diff_type_untouched__';
+const TYPE_UPDATED = '__diff_type_updated__';
 
 function getDiff(array $array1, array $array2): array
 {
     $mergedContent = array_merge($array1, $array2);
 
-    $list = makeDiff();
+    $diff = makeDiff();
 
     foreach ($mergedContent as $key => $value) {
         if (!array_key_exists($key, $array1)) {
             $node = makeAdded($key, $value);
-            $list = addNode($node, $list);
+            $diff = addNode($node, $diff);
         } elseif (!array_key_exists($key, $array2)) {
             $node = makeRemoved($key, $value);
-            $list = addNode($node, $list);
+            $diff = addNode($node, $diff);
         } elseif (is_array($value)) {
-            $node = makeUntouched($key, getDiff($array1[$key], $array2[$key]));
-            $list = addNode($node, $list);
+            $childDiff = getDiff($array1[$key], $array2[$key]);
+            $node = makeUntouched($key, $childDiff);
+            $diff = addNode($node, $diff);
         } elseif ($array2[$key] === $array1[$key]) {
             $node = makeUntouched($key, $value);
-            $list = addNode($node, $list);
+            $diff = addNode($node, $diff);
         } else {
-            $nodeRemoved = makeRemoved($key, $array1[$key]);
-            $list = addNode($nodeRemoved, $list);
-
-            $nodeAdded = makeAdded($key, $array2[$key]);
-            $list = addNode($nodeAdded, $list);
+            $node = makeUpdated($key, $array1[$key], $array2[$key]);
+            $diff = addNode($node, $diff);
         }
     }
 
-    return $list;
+    return $diff;
 }
 
 function makeDiff(): array
 {
     return [
-        DIFF_ID,
-        'items' => [],
+        DIFF_MARKER,
+        'children' => [],
     ];
 }
 
@@ -54,55 +53,104 @@ function isDiff($diff): bool
         return false;
     }
 
-    return $diff[0] === DIFF_ID;
+    return $diff[0] === DIFF_MARKER;
 }
 
-function getItems(array $diff)
+function getChildren(array $diff)
 {
-    return $diff['items'];
+    validateDiff($diff);
+    return $diff['children'];
 }
 
 function addNode(array $node, array $diff): array
 {
-    if (!isNode($node)) {
-        throw new \Exception('You can add only diff nodes!');
-    }
+    validateNode($node);
+    validateDiff($diff);
 
-    $diff['items'][] = $node;
+    $diff['children'][] = $node;
 
-    usort($diff['items'], fn($a, $b) => strcmp(getKey($a), getKey($b)));
+    usort($diff['children'], fn($a, $b) => strcmp(getKey($a), getKey($b)));
 
     return $diff;
+}
+
+function validateNode(array $node)
+{
+    if (!isNode($node)) {
+        throw new \Exception('Item is not node!');
+    }
+}
+
+function validateDiff(array $diff)
+{
+    if (!isDiff($diff)) {
+        throw new \Exception('Item is not diff!');
+    }
 }
 
 function makeAdded(string $key, $value): array
 {
     return [
-        NODE_ID,
+        NODE_MARKER,
         'type' => TYPE_ADDED,
         'key' => $key,
         'value' => $value,
     ];
 }
 
+function isAddedNode($node): bool
+{
+    validateNode($node);
+    return getType($node) === TYPE_ADDED;
+}
+
 function makeRemoved(string $key, $value): array
 {
     return [
-        NODE_ID,
+        NODE_MARKER,
         'type' => TYPE_REMOVED,
         'key' => $key,
         'value' => $value,
     ];
 }
 
+function isRemovedNode($node): bool
+{
+    validateNode($node);
+    return getType($node) === TYPE_REMOVED;
+}
+
 function makeUntouched(string $key, $value): array
 {
     return [
-        NODE_ID,
+        NODE_MARKER,
         'type' => TYPE_UNTOUCHED,
         'key' => $key,
         'value' => $value,
     ];
+}
+
+function isUntouchedNode($node): bool
+{
+    validateNode($node);
+    return getType($node) === TYPE_UNTOUCHED;
+}
+
+function makeUpdated(string $key, $oldValue, $newValue): array
+{
+    return [
+        NODE_MARKER,
+        'type' => TYPE_UPDATED,
+        'key' => $key,
+        'oldValue' => $oldValue,
+        'value' => $newValue,
+    ];
+}
+
+function isUpdatedNode($node): bool
+{
+    validateNode($node);
+    return getType($node) === TYPE_UPDATED;
 }
 
 function isNode($node): bool
@@ -111,20 +159,34 @@ function isNode($node): bool
         return false;
     }
 
-    return $node[0] === NODE_ID;
+    return $node[0] === NODE_MARKER;
 }
 
 function getType(array $node): string
 {
+    validateNode($node);
     return $node['type'];
 }
 
 function getKey(array $node): string
 {
+    validateNode($node);
     return $node['key'];
 }
 
 function getValue(array $node)
 {
+    validateNode($node);
     return $node['value'];
+}
+
+function getOldValue(array $node)
+{
+    validateNode($node);
+
+    if (!isUpdatedNode($node)) {
+        throw new \Exception('Node type needs to be updated for get old value');
+    }
+
+    return $node['oldValue'];
 }
