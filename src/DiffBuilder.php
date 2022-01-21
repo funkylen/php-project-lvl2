@@ -10,7 +10,7 @@ const TYPE_REMOVED = '__diff_type_removed__';
 const TYPE_UNTOUCHED = '__diff_type_untouched__';
 const TYPE_UPDATED = '__diff_type_updated__';
 
-function getDiff(array $array1, array $array2): array
+function getDiff($array1, $array2): array
 {
     $mergedContent = array_merge($array1, $array2);
 
@@ -23,7 +23,7 @@ function getDiff(array $array1, array $array2): array
         } elseif (!array_key_exists($key, $array2)) {
             $node = makeRemoved($key, $value);
             $diff = addNode($node, $diff);
-        } elseif (is_array($value)) {
+        } elseif (is_array($value) && is_array($array1[$key])) {
             $childDiff = getDiff($array1[$key], $array2[$key]);
             $node = makeUntouched($key, $childDiff);
             $diff = addNode($node, $diff);
