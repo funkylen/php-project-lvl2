@@ -24,7 +24,7 @@ function get(array $diff): string
     return getFormattedString(prepareDiff($diff));
 }
 
-function prepareDiff($diff)
+function prepareDiff(array $diff): array
 {
     return array_reduce(getChildren($diff), function ($acc, $node) {
         if (isUpdatedNode($node)) {
@@ -93,12 +93,16 @@ function getFormattedString(array $items, int $depth = 1): string
     return $formattedString;
 }
 
-function hasPrefix($key): bool
+function hasPrefix(string $key): bool
 {
     $prefix = substr($key, 0, PREFIX_LENGTH);
     return in_array($prefix, [PREFIX_ADDED, PREFIX_REMOVED, PREFIX_UNTOUCHED], true);
 }
 
+/**
+ * @param mixed $value
+ * @return string
+ */
 function parseValue($value): string
 {
     return is_string($value) ? $value : json_encode($value);
