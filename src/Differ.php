@@ -16,7 +16,9 @@ function genDiff(string $path1, string $path2, string $format = 'stylish'): stri
 
     $diff = getDiff($firstFileContent, $secondFileContent);
 
-    return getFormattedDiff($diff, $format);
+    $formattedString = getFormattedDiff($diff, $format);
+
+    return rtrim($formattedString, "\n ");
 }
 
 function getFileContents(string $path): array

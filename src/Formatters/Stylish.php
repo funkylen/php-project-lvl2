@@ -83,13 +83,11 @@ function getFormattedString(array $items, int $depth = 1): string
         }
     }
 
-    if ($depth === 1) {
-        $formattedString .= "}";
-        return $formattedString;
+    if ($depth > 1) {
+        $endParenthesisOffsetLength = (INDENT_LENGTH + PREFIX_LENGTH) * ($depth - 1);
+        $formattedString .= str_repeat(' ', $endParenthesisOffsetLength);
     }
 
-    $endParenthesisOffsetLength = (INDENT_LENGTH + PREFIX_LENGTH) * ($depth - 1);
-    $formattedString .= str_repeat(' ', $endParenthesisOffsetLength);
     $formattedString .= "}\n";
 
     return $formattedString;
