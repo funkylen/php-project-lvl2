@@ -117,6 +117,7 @@ function addChild(array $node, array $diff): array
  */
 function sortChildren(array $children): array
 {
+    // TODO: Написать свою сортировку
     usort($children, fn($a, $b) => strcmp(getKey($a), getKey($b)));
 
     return $children;
