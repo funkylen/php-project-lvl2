@@ -14,7 +14,8 @@ use function Differ\DiffBuilder\isUpdatedNode;
 
 function get(array $diff): string
 {
-    return getFormattedString(prepareDiff(($diff)));
+    $prepared = prepareDiff($diff);
+    return getFormattedString($prepared);
 }
 
 function prepareDiff(array $diff, string $rootPath = ''): array
@@ -30,7 +31,10 @@ function prepareDiff(array $diff, string $rootPath = ''): array
             return isDiff($value) ? array_merge($acc, prepareDiff($value, $path)) : $acc;
         }
 
-        return array_merge($acc, makePlainDiffNode($path, $node));
+        return [
+            ...$acc,
+            makePlainDiffNode($path, $node)
+        ];
     }, []);
 }
 
