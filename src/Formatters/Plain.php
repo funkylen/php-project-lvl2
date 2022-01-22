@@ -30,9 +30,7 @@ function prepareDiff(array $diff, string $rootPath = ''): array
             return isDiff($value) ? array_merge($acc, prepareDiff($value, $path)) : $acc;
         }
 
-        $acc[$path] = makePlainDiffNode($path, $node);
-
-        return $acc;
+        return array_merge($acc, makePlainDiffNode($path, $node));
     }, []);
 }
 
@@ -58,26 +56,23 @@ function getFormattedString(array $items): string
 {
     return array_reduce($items, function ($formattedString, $plainDiffNode) {
         $path = getPath($plainDiffNode);
-        $formattedString .= "Property '{$path}'";
+        $propertyInfo = "Property '{$path}'";
 
         $node = getNode($plainDiffNode);
 
         if (isAddedNode($node)) {
             $value = parseValue(getValue($node));
-            $formattedString .= " was added with value: {$value}\n";
-            return $formattedString;
+            return $formattedString . $propertyInfo . " was added with value: {$value}\n";
         }
 
         if (isRemovedNode($node)) {
-            $formattedString .= " was removed\n";
-            return $formattedString;
+            return $formattedString . $propertyInfo . " was removed\n";
         }
 
         if (isUpdatedNode($node)) {
             $oldValue = parseValue(getOldValue($node));
             $value = parseValue(getValue($node));
-            $formattedString .= " was updated. From {$oldValue} to {$value}\n";
-            return $formattedString;
+            return $formattedString . $propertyInfo . " was updated. From {$oldValue} to {$value}\n";
         }
 
         throw new \Exception('Undefined type');
