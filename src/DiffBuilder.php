@@ -13,38 +13,21 @@ const TYPE_UNTOUCHED = '__diff_type_untouched__';
 const TYPE_UPDATED = '__diff_type_updated__';
 
 /**
- * @param mixed $array1
- * @param mixed $array2
+ * @param mixed $firstData
+ * @param mixed $secondData
  * @return array
  * @throws Exception
  */
-function getDiff($array1, $array2): array
+function getDiff($firstData, $secondData): array
 {
-    $mergedContent = array_merge($array1, $array2);
+    $mergedContent = array_merge($firstData, $secondData);
 
-    $diff = makeDiff();
+    $keys = array_keys($mergedContent);
+    $values = array_values($mergedContent);
 
-    foreach ($mergedContent as $key => $value) {
-        if (!array_key_exists($key, $array1)) {
-            $node = makeAdded($key, $value);
-            $diff = addNode($node, $diff);
-        } elseif (!array_key_exists($key, $array2)) {
-            $node = makeRemoved($key, $value);
-            $diff = addNode($node, $diff);
-        } elseif (is_array($value) && is_array($array1[$key])) {
-            $childDiff = getDiff($array1[$key], $array2[$key]);
-            $node = makeUntouched($key, $childDiff);
-            $diff = addNode($node, $diff);
-        } elseif ($array2[$key] === $array1[$key]) {
-            $node = makeUntouched($key, $value);
-            $diff = addNode($node, $diff);
-        } else {
-            $node = makeUpdated($key, $array1[$key], $array2[$key]);
-            $diff = addNode($node, $diff);
-        }
-    }
+    $nodes = array_map(fn($key, $value) => makeNode($key, $value, $firstData, $secondData), $keys, $values);
 
-    return $diff;
+    return array_reduce($nodes, fn($diff, $node) => addNode($node, $diff), makeDiff());
 }
 
 function makeDiff(): array
@@ -53,6 +36,36 @@ function makeDiff(): array
         'entity' => DIFF,
         'children' => [],
     ];
+}
+
+/**
+ * @param string $key
+ * @param mixed $value
+ * @param mixed $firstData
+ * @param mixed $secondData
+ * @return array
+ * @throws Exception
+ */
+function makeNode(string $key, $value, $firstData, $secondData): array
+{
+    if (!array_key_exists($key, $firstData)) {
+        return makeAdded($key, $value);
+    }
+
+    if (!array_key_exists($key, $secondData)) {
+        return makeRemoved($key, $value);
+    }
+
+    if (is_array($value) && is_array($firstData[$key])) {
+        $childDiff = getDiff($firstData[$key], $secondData[$key]);
+        return makeUntouched($key, $childDiff);
+    }
+
+    if ($secondData[$key] === $firstData[$key]) {
+        return makeUntouched($key, $value);
+    }
+
+    return makeUpdated($key, $firstData[$key], $secondData[$key]);
 }
 
 /**
