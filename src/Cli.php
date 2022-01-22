@@ -35,8 +35,7 @@ function run()
     $secondFilePath = getAbsoluteFilePath($args['<secondFile>']);
     $format = strtolower($args['--format']);
 
-    $diff = genDiff($firstFilePath, $secondFilePath, $format);
-    echo $diff;
+    echo genDiff($firstFilePath, $secondFilePath, $format);
 }
 
 function getAbsoluteFilePath(string $path): string
