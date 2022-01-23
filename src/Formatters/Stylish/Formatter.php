@@ -4,14 +4,12 @@ namespace Differ\Formatters\Stylish\Formatter;
 
 use function Differ\Formatters\Stylish\Node\getChildren;
 use function Differ\Formatters\Stylish\Node\getKey;
-use function Differ\Formatters\Stylish\Node\getType;
 use function Differ\Formatters\Stylish\Node\hasChildren;
 use function Differ\Formatters\Stylish\Node\getValue;
+use function Differ\Formatters\Stylish\Node\isAddedNode;
+use function Differ\Formatters\Stylish\Node\isRemovedNode;
+use function Differ\Formatters\Stylish\Node\isUntouchedNode;
 use function Differ\Formatters\Stylish\Tree\makeTree;
-
-use const Differ\Formatters\Stylish\Node\TYPE_ADDED;
-use const Differ\Formatters\Stylish\Node\TYPE_REMOVED;
-use const Differ\Formatters\Stylish\Node\TYPE_UNTOUCHED;
 
 const PREFIX_ADDED = '+ ';
 const PREFIX_REMOVED = '- ';
@@ -60,16 +58,17 @@ function makeFormattedDiffFromTree(array $tree, int $depth = 1): string
 
 function getPrefix(array $node): string
 {
-    switch (getType($node)) {
-        case TYPE_ADDED:
-            return PREFIX_ADDED;
-        case TYPE_REMOVED:
-            return PREFIX_REMOVED;
-        case TYPE_UNTOUCHED:
-            return PREFIX_UNTOUCHED;
-        default:
-            throw new \Exception('Undefined type!');
+    if (isAddedNode($node)) {
+        return PREFIX_ADDED;
     }
+    if (isRemovedNode($node)) {
+        return PREFIX_REMOVED;
+    }
+    if (isUntouchedNode($node)) {
+        return PREFIX_UNTOUCHED;
+    }
+
+    throw new \Exception('Undefined type!');
 }
 
 function makeFormattedDiffFromArray(array $data, int $depth = 1): string
