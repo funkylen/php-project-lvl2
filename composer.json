@@ -16,7 +16,6 @@
             "src/Formatters/Plain/Formatter.php",
             "src/Formatters/Plain/Node.php",
             "src/Formatters/Plain/Tree.php",
-            "src/Formatters/Plain.php",
             "src/Formatters/Json.php",
             "src/FileReader.php"
         ]

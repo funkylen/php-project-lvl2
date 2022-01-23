@@ -9,15 +9,15 @@ use Differ\Formatters\Json\Formatter as JsonFormatter;
 function getFormattedDiff(array $diff, string $format): string
 {
     if ($format === 'stylish') {
-        return StylishFormatter\get($diff);
+        return StylishFormatter\getFormattedDiff($diff);
     }
 
     if ($format === 'plain') {
-        return PlainFormatter\get($diff);
+        return PlainFormatter\getFormattedDiff($diff);
     }
 
     if ($format === 'json') {
-        return JsonFormatter\get($diff);
+        return JsonFormatter\getFormattedDiff($diff);
     }
 
     throw new \Exception("Undefined format: ${format}");

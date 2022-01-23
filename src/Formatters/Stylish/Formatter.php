@@ -4,18 +4,26 @@ namespace Differ\Formatters\Stylish\Formatter;
 
 use function Differ\Formatters\Stylish\Node\getChildren;
 use function Differ\Formatters\Stylish\Node\getKey;
-use function Differ\Formatters\Stylish\Node\getPrefix;
+use function Differ\Formatters\Stylish\Node\getType;
 use function Differ\Formatters\Stylish\Node\hasChildren;
 use function Differ\Formatters\Stylish\Node\getValue;
 use function Differ\Formatters\Stylish\Tree\makeTree;
 
+use const Differ\Formatters\Stylish\Node\TYPE_ADDED;
+use const Differ\Formatters\Stylish\Node\TYPE_REMOVED;
+use const Differ\Formatters\Stylish\Node\TYPE_UNTOUCHED;
+
+const PREFIX_ADDED = '+ ';
+const PREFIX_REMOVED = '- ';
+const PREFIX_UNTOUCHED = '  ';
+
 const INDENT_LENGTH = 4;
 const PREFIX_LENGTH = 2;
 
-function get(array $diff): string
+function getFormattedDiff(array $diff): string
 {
     $tree = makeTree($diff);
-    return makeFromTree($tree);
+    return makeFormattedDiffFromTree($tree);
 }
 
 function format($content, $depth = 1): string
@@ -28,20 +36,20 @@ function format($content, $depth = 1): string
     return $start . implode('', $content) . $end;
 }
 
-function getIndentWithPrefix(int $depth, string $prefix = '  '): string
+function getIndentWithPrefix(int $depth, string $prefix = PREFIX_UNTOUCHED): string
 {
     $whitespace = $depth * INDENT_LENGTH - PREFIX_LENGTH;
 
     return str_repeat(' ', $whitespace) . $prefix;
 }
 
-function makeFromTree(array $tree, int $depth = 1): string
+function makeFormattedDiffFromTree(array $tree, int $depth = 1): string
 {
     $content = array_map(function ($node) use ($depth) {
         $keyPart = getIndentWithPrefix($depth, getPrefix($node)) . getKey($node) . ': ';
 
         if (hasChildren($node)) {
-            return $keyPart . makeFromTree(getChildren($node), $depth + 1);
+            return $keyPart . makeFormattedDiffFromTree(getChildren($node), $depth + 1);
         }
 
         return $keyPart . parseValue(getValue($node), $depth + 1);
@@ -50,7 +58,21 @@ function makeFromTree(array $tree, int $depth = 1): string
     return format($content, $depth);
 }
 
-function makeFromArray(array $data, int $depth = 1): string
+function getPrefix(array $node): string
+{
+    switch (getType($node)) {
+        case TYPE_ADDED:
+            return PREFIX_ADDED;
+        case TYPE_REMOVED:
+            return PREFIX_REMOVED;
+        case TYPE_UNTOUCHED:
+            return PREFIX_UNTOUCHED;
+        default:
+            throw new \Exception('Undefined type!');
+    }
+}
+
+function makeFormattedDiffFromArray(array $data, int $depth = 1): string
 {
     $content = array_map(function ($key, $value) use ($depth) {
         return getIndentWithPrefix($depth) . $key . ': ' . parseValue($value, $depth + 1);
@@ -67,7 +89,7 @@ function makeFromArray(array $data, int $depth = 1): string
 function parseValue($value, int $depth): string
 {
     if (is_array($value)) {
-        return makeFromArray($value, $depth);
+        return makeFormattedDiffFromArray($value, $depth);
     }
 
     return is_string($value) ? $value . PHP_EOL : json_encode($value) . PHP_EOL;
