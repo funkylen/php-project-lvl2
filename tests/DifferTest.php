@@ -49,7 +49,7 @@ class DifferTest extends TestCase
     }
 
 
-    public function testGenDiffPJsonJson(): void
+    public function testGenDiffJsonJson(): void
     {
         $filePath1 = __DIR__ . '/fixtures/json/file1.json';
         $filePath2 = __DIR__ . '/fixtures/json/file2.json';
