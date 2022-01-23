@@ -2,7 +2,7 @@
 
 namespace Differ\Diff\Tree;
 
-use function Differ\Diff\Node\getKey;
+use function Functional\sort;
 use function Differ\Diff\Node\makeNode;
 
 use const Differ\Diff\Node\TYPE_ADDED;
@@ -17,13 +17,13 @@ use const Differ\Diff\Node\TYPE_UNTOUCHED;
  */
 function makeTree($firstData, $secondData): array
 {
-    $allKeys = array_keys(array_merge($firstData, $secondData));
+    $mergedKeys = array_keys(array_merge($firstData, $secondData));
 
-    $sortResult = sort($allKeys);
+    $sortedKeys = sort($mergedKeys, fn($left, $right) => strcmp($left, $right));
 
     $nodes = array_map(
         fn($key) => identifyTypeAndMakeNode($key, $firstData, $secondData),
-        $allKeys,
+        $sortedKeys,
     );
 
     return $nodes;
