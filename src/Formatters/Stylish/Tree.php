@@ -11,7 +11,6 @@ use function Differ\DiffBuilder\isAddedNode;
 use function Differ\DiffBuilder\isRemovedNode;
 use function Differ\DiffBuilder\isUntouchedNode;
 use function Differ\DiffBuilder\isUpdatedNode;
-
 use function Differ\Formatters\Stylish\Node\makeNode;
 
 use const Differ\Formatters\Stylish\Node\TYPE_UNTOUCHED;
