@@ -2,15 +2,15 @@
 
 namespace Differ\Formatters\Stylish\Tree;
 
-use function Differ\DiffBuilder\getChildren;
-use function Differ\DiffBuilder\getKey;
-use function Differ\DiffBuilder\getNewValue;
-use function Differ\DiffBuilder\getOldValue;
-use function Differ\DiffBuilder\hasChildren;
-use function Differ\DiffBuilder\isAddedNode;
-use function Differ\DiffBuilder\isRemovedNode;
-use function Differ\DiffBuilder\isUntouchedNode;
-use function Differ\DiffBuilder\isUpdatedNode;
+use function Differ\Diff\Node\getChildren;
+use function Differ\Diff\Node\getKey;
+use function Differ\Diff\Node\getNewValue;
+use function Differ\Diff\Node\getOldValue;
+use function Differ\Diff\Node\hasChildren;
+use function Differ\Diff\Node\isAddedNode;
+use function Differ\Diff\Node\isRemovedNode;
+use function Differ\Diff\Node\isUntouchedNode;
+use function Differ\Diff\Node\isUpdatedNode;
 use function Differ\Formatters\Stylish\Node\makeNode;
 
 use const Differ\Formatters\Stylish\Node\TYPE_UNTOUCHED;

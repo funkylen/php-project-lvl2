@@ -81,11 +81,6 @@ function makeFormattedDiffFromArray(array $data, int $depth = 1): string
     return format($content, $depth);
 }
 
-/**
- * @param mixed $value
- * @param int $depth
- * @return string
- */
 function parseValue($value, int $depth): string
 {
     if (is_array($value)) {

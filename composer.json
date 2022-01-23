@@ -6,10 +6,10 @@
         "files": [
             "src/Cli.php",
             "src/Differ.php",
-            "src/DiffBuilder.php",
-            "src/Formatter.php",
+            "src/Parser.php",
             "src/Parsers/Json.php",
             "src/Parsers/Yaml.php",
+            "src/Formatter.php",
             "src/Formatters/Stylish/Formatter.php",
             "src/Formatters/Stylish/Node.php",
             "src/Formatters/Stylish/Tree.php",
@@ -17,7 +17,8 @@
             "src/Formatters/Plain/Node.php",
             "src/Formatters/Plain/Tree.php",
             "src/Formatters/Json/Formatter.php",
-            "src/Parser.php"
+            "src/Diff/Node.php",
+            "src/Diff/Tree.php"
         ]
     },
     "authors": [
