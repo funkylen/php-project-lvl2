@@ -11,7 +11,6 @@ use function Differ\Diff\Node\isAddedNode;
 use function Differ\Diff\Node\isRemovedNode;
 use function Differ\Diff\Node\isUntouchedNode;
 use function Differ\Diff\Node\isUpdatedNode;
-
 use function Differ\Formatters\Plain\Node\makeNode;
 
 use const Differ\Formatters\Plain\Node\TYPE_ADDED;
