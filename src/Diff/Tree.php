@@ -19,12 +19,12 @@ function makeTree($firstData, $secondData): array
 {
     $allKeys = array_keys(array_merge($firstData, $secondData));
 
+    $sortResult = sort($allKeys);
+
     $nodes = array_map(
         fn($key) => identifyTypeAndMakeNode($key, $firstData, $secondData),
         $allKeys,
     );
-
-    usort($nodes, fn($a, $b) => strcmp(getKey($a), getKey($b)));
 
     return $nodes;
 }
