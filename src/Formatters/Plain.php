@@ -5,9 +5,10 @@ namespace Differ\Formatters\Plain;
 use function Differ\DiffBuilder\getChildren;
 use function Differ\DiffBuilder\getKey;
 use function Differ\DiffBuilder\getOldValue;
-use function Differ\DiffBuilder\getValue;
+use function Differ\DiffBuilder\getNewValue;
+use function Differ\DiffBuilder\hasChildren;
 use function Differ\DiffBuilder\isAddedNode;
-use function Differ\DiffBuilder\isDiff;
+use function Differ\DiffBuilder\isCollection;
 use function Differ\DiffBuilder\isRemovedNode;
 use function Differ\DiffBuilder\isUntouchedNode;
 use function Differ\DiffBuilder\isUpdatedNode;
@@ -18,17 +19,17 @@ function get(array $diff): string
     return getFormattedString($prepared);
 }
 
-function prepareDiff(array $diff, string $rootPath = ''): array
+function prepareDiff(array $data, string $rootPath = ''): array
 {
-    return array_reduce(getChildren($diff), function ($acc, $node) use ($rootPath) {
+    return array_reduce($data, function ($acc, $node) use ($rootPath) {
         $key = getKey($node);
 
         $path = $rootPath === '' ? $key : "$rootPath.$key";
 
-        $value = getValue($node);
+        $value = getNewValue($node);
 
         if (isUntouchedNode($node)) {
-            return isDiff($value) ? array_merge($acc, prepareDiff($value, $path)) : $acc;
+            return hasChildren($node) ? array_merge($acc, prepareDiff($value, $path)) : $acc;
         }
 
         return [
@@ -38,23 +39,7 @@ function prepareDiff(array $diff, string $rootPath = ''): array
     }, []);
 }
 
-function makePlainDiffNode(string $path, array $node): array
-{
-    return [
-        'path' => $path,
-        'node' => $node,
-    ];
-}
 
-function getPath(array $plainDiffItem): string
-{
-    return $plainDiffItem['path'];
-}
-
-function getNode(array $plainDiffItem): array
-{
-    return $plainDiffItem['node'];
-}
 
 function getFormattedString(array $items): string
 {
@@ -65,7 +50,7 @@ function getFormattedString(array $items): string
         $node = getNode($plainDiffNode);
 
         if (isAddedNode($node)) {
-            $value = parseValue(getValue($node));
+            $value = parseValue(getNewValue($node));
             return $formattedString . $propertyInfo . " was added with value: {$value}\n";
         }
 
@@ -75,7 +60,7 @@ function getFormattedString(array $items): string
 
         if (isUpdatedNode($node)) {
             $oldValue = parseValue(getOldValue($node));
-            $value = parseValue(getValue($node));
+            $value = parseValue(getNewValue($node));
             return $formattedString . $propertyInfo . " was updated. From {$oldValue} to {$value}\n";
         }
 

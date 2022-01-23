@@ -10,7 +10,9 @@
             "src/Formatter.php",
             "src/Parsers/Json.php",
             "src/Parsers/Yaml.php",
-            "src/Formatters/Stylish.php",
+            "src/Formatters/Stylish/Formatter.php",
+            "src/Formatters/Stylish/Node.php",
+            "src/Formatters/Stylish/Tree.php",
             "src/Formatters/Plain.php",
             "src/Formatters/Json.php",
             "src/FileReader.php"
