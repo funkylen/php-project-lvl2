@@ -4,11 +4,13 @@ namespace Differ\Formatters\Stylish\Formatter;
 
 use function Differ\Formatters\Stylish\Node\getChildren;
 use function Differ\Formatters\Stylish\Node\getKey;
+use function Differ\Formatters\Stylish\Node\getPrefix;
 use function Differ\Formatters\Stylish\Node\hasChildren;
 use function Differ\Formatters\Stylish\Node\getValue;
 use function Differ\Formatters\Stylish\Tree\makeTree;
 
-const KEY_INDENT_LENGTH = 4;
+const INDENT_LENGTH = 4;
+const PREFIX_LENGTH = 2;
 
 function get(array $diff): string
 {
@@ -26,15 +28,17 @@ function format($content, $depth = 1): string
     return $start . implode('', $content) . $end;
 }
 
-function getIndent(int $depth): string
+function getIndentWithPrefix(int $depth, string $prefix = '  '): string
 {
-    return str_repeat(' ', $depth * KEY_INDENT_LENGTH);
+    $whitespace = $depth * INDENT_LENGTH - PREFIX_LENGTH;
+
+    return str_repeat(' ', $whitespace) . $prefix;
 }
 
 function makeFromTree(array $tree, int $depth = 1): string
 {
     $content = array_map(function ($node) use ($depth) {
-        $keyPart = getIndent($depth) . getKey($node) . ': ';
+        $keyPart = getIndentWithPrefix($depth, getPrefix($node)) . getKey($node) . ': ';
 
         if (hasChildren($node)) {
             return $keyPart . makeFromTree(getChildren($node), $depth + 1);
@@ -49,7 +53,7 @@ function makeFromTree(array $tree, int $depth = 1): string
 function makeFromArray(array $data, int $depth = 1): string
 {
     $content = array_map(function ($key, $value) use ($depth) {
-        return getIndent($depth) . $key . ': ' . parseValue($value, $depth + 1);
+        return getIndentWithPrefix($depth) . $key . ': ' . parseValue($value, $depth + 1);
     }, array_keys($data), array_values($data));
 
     return format($content, $depth);
