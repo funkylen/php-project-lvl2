@@ -26,7 +26,7 @@ function getFormattedDiff(array $diff): string
     return makeFormattedDiffFromTree($tree);
 }
 
-function format($content, $depth = 1): string
+function format(array $content, int $depth = 1): string
 {
     $start = '{' . PHP_EOL;
 
@@ -81,6 +81,11 @@ function makeFormattedDiffFromArray(array $data, int $depth = 1): string
     return format($content, $depth);
 }
 
+/**
+ * @param mixed $value
+ * @param int $depth
+ * @return string
+ */
 function parseValue($value, int $depth): string
 {
     if (is_array($value)) {

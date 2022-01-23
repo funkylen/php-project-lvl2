@@ -7,6 +7,14 @@ const TYPE_REMOVED = '__diff_type_removed__';
 const TYPE_UNTOUCHED = '__diff_type_untouched__';
 const TYPE_UPDATED = '__diff_type_updated__';
 
+/**
+ * @param string $type
+ * @param string $key
+ * @param mixed $oldValue
+ * @param mixed $newValue
+ * @param array $children
+ * @return array
+ */
 function makeNode(string $type, string $key, $oldValue, $newValue, array $children = []): array
 {
     return [
@@ -28,11 +36,19 @@ function getKey(array $node): string
     return $node['key'];
 }
 
+/**
+ * @param array $node
+ * @return mixed
+ */
 function getOldValue(array $node)
 {
     return $node['oldValue'];
 }
 
+/**
+ * @param array $node
+ * @return mixed
+ */
 function getNewValue(array $node)
 {
     return $node['newValue'];

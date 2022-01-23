@@ -10,6 +10,11 @@ use const Differ\Diff\Node\TYPE_REMOVED;
 use const Differ\Diff\Node\TYPE_UPDATED;
 use const Differ\Diff\Node\TYPE_UNTOUCHED;
 
+/**
+ * @param mixed $firstData
+ * @param mixed $secondData
+ * @return array
+ */
 function makeTree($firstData, $secondData): array
 {
     $allKeys = array_keys(array_merge($firstData, $secondData));
@@ -24,6 +29,12 @@ function makeTree($firstData, $secondData): array
     return $nodes;
 }
 
+/**
+ * @param string $key
+ * @param mixed $firstData
+ * @param mixed $secondData
+ * @return array
+ */
 function identifyTypeAndMakeNode(string $key, $firstData, $secondData): array
 {
     if (!array_key_exists($key, $firstData)) {

@@ -45,6 +45,10 @@ function makeFormattedDiffFromTree(array $tree): string
     return implode(PHP_EOL, $content);
 }
 
+/**
+ * @param mixed $value
+ * @return string
+ */
 function parseValue($value): string
 {
     if (is_array($value)) {

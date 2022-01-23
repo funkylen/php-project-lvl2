@@ -6,6 +6,13 @@ const TYPE_ADDED = '__plain_added__';
 const TYPE_REMOVED = '__plain_removed__';
 const TYPE_UPDATED = '__plain_updated__';
 
+/**
+ * @param string $path
+ * @param string $type
+ * @param mixed $oldValue
+ * @param mixed $newValue
+ * @return array
+ */
 function makeNode(string $path, string $type, $oldValue, $newValue): array
 {
     return [
