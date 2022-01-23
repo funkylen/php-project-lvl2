@@ -6,6 +6,13 @@ const TYPE_ADDED = '__stylish_node__';
 const TYPE_REMOVED = '__stylish_removed__';
 const TYPE_UNTOUCHED = '__stylish_untouched__';
 
+/**
+ * @param string $type
+ * @param string $key
+ * @param mixed $value
+ * @param array $children
+ * @return array
+ */
 function makeNode(string $type, string $key, $value, array $children = []): array
 {
     return [
@@ -38,5 +45,5 @@ function getChildren(array $node): array
 
 function hasChildren(array $node): bool
 {
-    return !empty(getChildren($node));
+    return count(getChildren($node)) > 0;
 }

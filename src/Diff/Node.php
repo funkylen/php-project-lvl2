@@ -61,7 +61,7 @@ function getChildren(array $node): array
 
 function hasChildren(array $node): bool
 {
-    return !empty($node['children']);
+    return count(getChildren($node)) > 0;
 }
 
 function isAddedNode(array $node): bool
