@@ -11,7 +11,7 @@
             "src/Formatters/Stylish/Formatter.php",
             "src/Formatters/Stylish/Node.php",
             "src/Formatters/Stylish/Tree.php",
-            "src/Formatters/Json/Formatter.php",
+            "src/Formatters/Json.php",
             "src/Formatters/Plain.php",
             "src/Diff/Node.php",
             "src/Diff/Tree.php"
