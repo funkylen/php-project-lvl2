@@ -31,18 +31,9 @@ function run()
 {
     $args = Docopt::handle(DOC, PARAMS);
 
-    $firstFilePath = getAbsoluteFilePath($args['<firstFile>']);
-    $secondFilePath = getAbsoluteFilePath($args['<secondFile>']);
+    $firstFilePath = $args['<firstFile>'];
+    $secondFilePath = $args['<secondFile>'];
     $format = strtolower($args['--format']);
 
     echo genDiff($firstFilePath, $secondFilePath, $format);
-}
-
-function getAbsoluteFilePath(string $path): string
-{
-    if (strpos($path, '/') === 0) {
-        return $path;
-    }
-
-    return __DIR__ . '/../' . $path;
 }

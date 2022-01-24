@@ -21,7 +21,9 @@ function genDiff(string $path1, string $path2, string $format = 'stylish'): stri
 
 function getParsedFileContents(string $path): array
 {
-    $content = file_get_contents($path);
+    $absolutePath  = getAbsoluteFilePath($path);
+
+    $content = file_get_contents($absolutePath);
 
     if ($content === false) {
         throw new \Exception("Can't read file contents :(");
@@ -30,6 +32,15 @@ function getParsedFileContents(string $path): array
     $extension = pathinfo($path, PATHINFO_EXTENSION);
 
     return parse($content, $extension);
+}
+
+function getAbsoluteFilePath(string $path): string
+{
+    if (strpos($path, '/') === 0) {
+        return $path;
+    }
+
+    return __DIR__ . '/../' . $path;
 }
 
 function parse(string $content, string $extension): array
