@@ -106,8 +106,6 @@ function makeTree(array $data): array
             ];
         }
 
-        $type = getType($node);
-
         if (isUpdatedNode($node)) {
             return [
                 ...$acc,
