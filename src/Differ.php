@@ -14,14 +14,12 @@ function genDiff(string $path1, string $path2, string $format = 'stylish'): stri
 
     $diff = makeTree($firstFileContent, $secondFileContent);
 
-    $formattedString = getFormattedDiff($diff, $format);
-
-    return rtrim($formattedString, "\n ");
+    return getFormattedDiff($diff, $format);
 }
 
 function getParsedFileContents(string $path): array
 {
-    $absolutePath  = getAbsoluteFilePath($path);
+    $absolutePath = getAbsoluteFilePath($path);
 
     $content = file_get_contents($absolutePath);
 

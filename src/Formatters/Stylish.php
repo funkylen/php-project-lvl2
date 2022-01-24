@@ -23,17 +23,8 @@ const PREFIX_LENGTH = 2;
 function getFormattedDiff(array $diff): string
 {
     $tree = makeTree($diff);
-    return makeFormattedDiffFromTree($tree);
-}
-
-function format(array $content, int $depth = 1): string
-{
-    $start = '{' . PHP_EOL;
-
-    $endIndent = str_repeat(' ', ($depth - 1) * 4);
-    $end = $endIndent . '}' . PHP_EOL;
-
-    return $start . implode('', $content) . $end;
+    $formattedDiff = makeFormattedDiffFromTree($tree);
+    return rtrim($formattedDiff, PHP_EOL);
 }
 
 function getIndentWithPrefix(int $depth, string $prefix = PREFIX_UNTOUCHED): string
@@ -56,6 +47,16 @@ function makeFormattedDiffFromTree(array $tree, int $depth = 1): string
     }, $tree);
 
     return format($content, $depth);
+}
+
+function format(array $content, int $depth = 1): string
+{
+    $start = '{' . PHP_EOL;
+
+    $endIndent = str_repeat(' ', ($depth - 1) * 4);
+    $end = $endIndent . '}' . PHP_EOL;
+
+    return $start . implode('', $content) . $end;
 }
 
 function getPrefix(array $node): string
