@@ -2,13 +2,13 @@
 
 namespace Differ\Formatters\Plain;
 
-use function Differ\Diff\Node\getChildren;
-use function Differ\Diff\Node\getKey;
-use function Differ\Diff\Node\hasChildren;
-use function Differ\Diff\Node\isAddedNode;
-use function Differ\Diff\Node\isRemovedNode;
-use function Differ\Diff\Node\isUntouchedNode;
-use function Differ\Diff\Node\isUpdatedNode;
+use function Differ\Diff\getChildren;
+use function Differ\Diff\getKey;
+use function Differ\Diff\hasChildren;
+use function Differ\Diff\isAddedNode;
+use function Differ\Diff\isRemovedNode;
+use function Differ\Diff\isUntouchedNode;
+use function Differ\Diff\isUpdatedNode;
 
 const TYPE_ADDED = '__plain_added__';
 const TYPE_REMOVED = '__plain_removed__';

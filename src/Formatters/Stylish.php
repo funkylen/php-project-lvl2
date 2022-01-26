@@ -2,12 +2,12 @@
 
 namespace Differ\Formatters\Stylish\Formatter;
 
-use function Differ\Diff\Node\getNewValue;
-use function Differ\Diff\Node\getOldValue;
-use function Differ\Diff\Node\isAddedNode;
-use function Differ\Diff\Node\isRemovedNode;
-use function Differ\Diff\Node\isUntouchedNode;
-use function Differ\Diff\Node\isUpdatedNode;
+use function Differ\Diff\getNewValue;
+use function Differ\Diff\getOldValue;
+use function Differ\Diff\isAddedNode;
+use function Differ\Diff\isRemovedNode;
+use function Differ\Diff\isUntouchedNode;
+use function Differ\Diff\isUpdatedNode;
 
 const TYPE_ADDED = '__stylish_node__';
 const TYPE_REMOVED = '__stylish_removed__';

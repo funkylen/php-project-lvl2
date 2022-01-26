@@ -2,7 +2,7 @@
 
 namespace Differ\Differ;
 
-use function Differ\Diff\Tree\makeTree;
+use function Differ\Diff\makeTree;
 use function Differ\Parsers\parseJson;
 use function Differ\Parsers\parseYaml;
 use function Differ\Formatter\getFormattedDiff;
