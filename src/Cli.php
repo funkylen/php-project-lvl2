@@ -27,7 +27,7 @@ const PARAMS = [
     'version' => '0.0.1',
 ];
 
-function run()
+function run(): string
 {
     $args = Docopt::handle(DOC, PARAMS);
 
@@ -35,5 +35,5 @@ function run()
     $secondFilePath = $args['<secondFile>'];
     $format = strtolower($args['--format']);
 
-    echo genDiff($firstFilePath, $secondFilePath, $format);
+    return genDiff($firstFilePath, $secondFilePath, $format);
 }
