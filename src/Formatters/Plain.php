@@ -2,13 +2,7 @@
 
 namespace Differ\Formatters\Plain;
 
-use function Differ\Diff\getChildren;
-use function Differ\Diff\getKey;
-use function Differ\Diff\hasChildren;
-use function Differ\Diff\isAddedNode;
-use function Differ\Diff\isRemovedNode;
-use function Differ\Diff\isUntouchedNode;
-use function Differ\Diff\isUpdatedNode;
+use Differ\Diff;
 
 const TYPE_ADDED = '__plain_added__';
 const TYPE_REMOVED = '__plain_removed__';
@@ -71,15 +65,15 @@ function parseValue($value): string
 function makeTree(array $data, string $rootPath = ''): array
 {
     return array_reduce($data, function ($acc, $node) use ($rootPath) {
-        $key = getKey($node);
+        $key = Diff\getKey($node);
 
         $path = $rootPath === '' ? $key : "$rootPath.$key";
 
-        if (hasChildren($node)) {
-            return array_merge($acc, makeTree(getChildren($node), $path));
+        if (Diff\hasChildren($node)) {
+            return array_merge($acc, makeTree(Diff\getChildren($node), $path));
         }
 
-        if (isUntouchedNode($node)) {
+        if (Diff\TYPE_UNTOUCHED === Diff\getType($node)) {
             return $acc;
         }
 
@@ -92,17 +86,16 @@ function makeTree(array $data, string $rootPath = ''): array
 
 function identifyType(array $node): string
 {
-    if (isAddedNode($node)) {
-        return TYPE_ADDED;
+    switch (Diff\getType($node)) {
+        case Diff\TYPE_ADDED:
+            return TYPE_ADDED;
+        case Diff\TYPE_REMOVED:
+            return TYPE_REMOVED;
+        case Diff\TYPE_UPDATED:
+            return TYPE_UPDATED;
+        default:
+            throw new \Exception('Undefined Type!');
     }
-    if (isUpdatedNode($node)) {
-        return TYPE_UPDATED;
-    }
-    if (isRemovedNode($node)) {
-        return TYPE_REMOVED;
-    }
-
-    throw new \Exception('Undefined Type!');
 }
 
 /**

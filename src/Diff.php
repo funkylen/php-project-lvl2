@@ -111,24 +111,3 @@ function hasChildren(array $node): bool
 {
     return count(getChildren($node)) > 0;
 }
-
-function isAddedNode(array $node): bool
-{
-    return getType($node) === TYPE_ADDED;
-}
-
-function isRemovedNode(array $node): bool
-{
-    return getType($node) === TYPE_REMOVED;
-}
-
-function isUntouchedNode(array $node): bool
-{
-    return getType($node) === TYPE_UNTOUCHED;
-}
-
-function isUpdatedNode(array $node): bool
-{
-    return getType($node) === TYPE_UPDATED;
-}
-

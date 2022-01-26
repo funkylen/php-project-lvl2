@@ -2,12 +2,7 @@
 
 namespace Differ\Formatters\Stylish\Formatter;
 
-use function Differ\Diff\getNewValue;
-use function Differ\Diff\getOldValue;
-use function Differ\Diff\isAddedNode;
-use function Differ\Diff\isRemovedNode;
-use function Differ\Diff\isUntouchedNode;
-use function Differ\Diff\isUpdatedNode;
+use Differ\Diff;
 
 const TYPE_ADDED = '__stylish_node__';
 const TYPE_REMOVED = '__stylish_removed__';
@@ -103,36 +98,38 @@ function makeTree(array $data): array
             $children = makeTree(getChildren($node));
             return [
                 ...$acc,
-                makeNode(TYPE_UNTOUCHED, getKey($node), getOldValue($node), $children),
+                makeNode(TYPE_UNTOUCHED, getKey($node), Diff\getOldValue($node), $children),
             ];
         }
 
-        if (isUpdatedNode($node)) {
+        $type = Diff\getType($node);
+
+        if (Diff\TYPE_UPDATED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_REMOVED, getKey($node), getOldValue($node)),
-                makeNode(TYPE_ADDED, getKey($node), getNewValue($node)),
+                makeNode(TYPE_REMOVED, getKey($node), Diff\getOldValue($node)),
+                makeNode(TYPE_ADDED, getKey($node), Diff\getNewValue($node)),
             ];
         }
 
-        if (isUntouchedNode($node)) {
+        if (Diff\TYPE_UNTOUCHED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_UNTOUCHED, getKey($node), getOldValue($node)),
+                makeNode(TYPE_UNTOUCHED, getKey($node), Diff\getOldValue($node)),
             ];
         }
 
-        if (isAddedNode($node)) {
+        if (Diff\TYPE_ADDED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_ADDED, getKey($node), getNewValue($node)),
+                makeNode(TYPE_ADDED, getKey($node), Diff\getNewValue($node)),
             ];
         }
 
-        if (isRemovedNode($node)) {
+        if (Diff\TYPE_REMOVED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_REMOVED, getKey($node), getOldValue($node)),
+                makeNode(TYPE_REMOVED, getKey($node), Diff\getOldValue($node)),
             ];
         }
 
