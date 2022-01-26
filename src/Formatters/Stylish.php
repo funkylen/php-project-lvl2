@@ -22,17 +22,12 @@ function getFormattedDiff(array $diff): string
     return rtrim($formattedDiff, PHP_EOL);
 }
 
-function getIndentWithPrefix(int $depth, string $prefix = PREFIX_UNTOUCHED): string
-{
-    $whitespace = $depth * INDENT_LENGTH - PREFIX_LENGTH;
-
-    return str_repeat(' ', $whitespace) . $prefix;
-}
-
 function makeFormattedDiffFromTree(array $tree, int $depth = 1): string
 {
     $content = array_map(function ($node) use ($depth) {
-        $keyPart = getIndentWithPrefix($depth, getPrefix($node)) . getKey($node) . ': ';
+        $whitespace = str_repeat(' ', $depth * INDENT_LENGTH);
+        $whitespaceWithPrefix = substr_replace($whitespace, getPrefix($node), -PREFIX_LENGTH);
+        $keyPart = $whitespaceWithPrefix . getKey($node) . ': ';
 
         if (hasChildren($node)) {
             return $keyPart . makeFormattedDiffFromTree(getChildren($node), $depth + 1);
@@ -48,33 +43,10 @@ function format(array $content, int $depth = 1): string
 {
     $start = '{' . PHP_EOL;
 
-    $endIndent = str_repeat(' ', ($depth - 1) * 4);
+    $endIndent = str_repeat(' ', ($depth - 1) * INDENT_LENGTH);
     $end = $endIndent . '}' . PHP_EOL;
 
     return $start . implode('', $content) . $end;
-}
-
-function getPrefix(array $node): string
-{
-    switch (getType($node)) {
-        case TYPE_ADDED:
-            return PREFIX_ADDED;
-        case TYPE_REMOVED:
-            return PREFIX_REMOVED;
-        case TYPE_UNTOUCHED:
-            return PREFIX_UNTOUCHED;
-        default:
-            throw new \Exception('Undefined type!');
-    }
-}
-
-function makeFormattedDiffFromArray(array $data, int $depth = 1): string
-{
-    $content = array_map(function ($key, $value) use ($depth) {
-        return getIndentWithPrefix($depth) . $key . ': ' . parseValue($value, $depth + 1);
-    }, array_keys($data), array_values($data));
-
-    return format($content, $depth);
 }
 
 /**
@@ -85,7 +57,12 @@ function makeFormattedDiffFromArray(array $data, int $depth = 1): string
 function parseValue($value, int $depth): string
 {
     if (is_array($value)) {
-        return makeFormattedDiffFromArray($value, $depth);
+        $content = array_map(function ($key, $value) use ($depth) {
+            $whitespace = str_repeat(' ', $depth * INDENT_LENGTH);
+            return $whitespace . $key . ': ' . parseValue($value, $depth + 1);
+        }, array_keys($value), array_values($value));
+
+        return format($content, $depth);
     }
 
     return is_string($value) ? $value . PHP_EOL : json_encode($value) . PHP_EOL;
@@ -98,7 +75,7 @@ function makeTree(array $data): array
             $children = makeTree(getChildren($node));
             return [
                 ...$acc,
-                makeNode(TYPE_UNTOUCHED, getKey($node), Diff\getOldValue($node), $children),
+                makeNode(TYPE_UNTOUCHED, PREFIX_UNTOUCHED, getKey($node), Diff\getOldValue($node), $children),
             ];
         }
 
@@ -107,29 +84,29 @@ function makeTree(array $data): array
         if (Diff\TYPE_UPDATED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_REMOVED, getKey($node), Diff\getOldValue($node)),
-                makeNode(TYPE_ADDED, getKey($node), Diff\getNewValue($node)),
+                makeNode(TYPE_REMOVED, PREFIX_REMOVED, getKey($node), Diff\getOldValue($node)),
+                makeNode(TYPE_ADDED, PREFIX_ADDED, getKey($node), Diff\getNewValue($node)),
             ];
         }
 
         if (Diff\TYPE_UNTOUCHED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_UNTOUCHED, getKey($node), Diff\getOldValue($node)),
+                makeNode(TYPE_UNTOUCHED, PREFIX_UNTOUCHED, getKey($node), Diff\getOldValue($node)),
             ];
         }
 
         if (Diff\TYPE_ADDED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_ADDED, getKey($node), Diff\getNewValue($node)),
+                makeNode(TYPE_ADDED, PREFIX_ADDED, getKey($node), Diff\getNewValue($node)),
             ];
         }
 
         if (Diff\TYPE_REMOVED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_REMOVED, getKey($node), Diff\getOldValue($node)),
+                makeNode(TYPE_REMOVED, PREFIX_REMOVED, getKey($node), Diff\getOldValue($node)),
             ];
         }
 
@@ -139,15 +116,17 @@ function makeTree(array $data): array
 
 /**
  * @param string $type
+ * @param string $prefix
  * @param string $key
  * @param mixed $value
  * @param array $children
  * @return array
  */
-function makeNode(string $type, string $key, $value, array $children = []): array
+function makeNode(string $type, string $prefix, string $key, $value, array $children = []): array
 {
     return [
         'type' => $type,
+        'prefix' => $prefix,
         'key' => $key,
         'value' => $value,
         'children' => $children,
@@ -157,6 +136,11 @@ function makeNode(string $type, string $key, $value, array $children = []): arra
 function getType(array $node): string
 {
     return $node['type'];
+}
+
+function getPrefix(array $node): string
+{
+    return $node['prefix'];
 }
 
 function getKey(array $node): string
