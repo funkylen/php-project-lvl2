@@ -4,10 +4,6 @@ namespace Differ\Formatters\Stylish\Formatter;
 
 use Differ\Diff;
 
-const TYPE_ADDED = '__stylish_node__';
-const TYPE_REMOVED = '__stylish_removed__';
-const TYPE_UNTOUCHED = '__stylish_untouched__';
-
 const PREFIX_ADDED = '+ ';
 const PREFIX_REMOVED = '- ';
 const PREFIX_UNTOUCHED = '  ';
@@ -29,17 +25,18 @@ function makeFormattedDiffFromTree(array $tree, int $depth = 1): string
         $whitespaceWithPrefix = substr_replace($whitespace, getPrefix($node), -PREFIX_LENGTH);
         $keyPart = $whitespaceWithPrefix . getKey($node) . ': ';
 
-        if (hasChildren($node)) {
-            return $keyPart . makeFormattedDiffFromTree(getChildren($node), $depth + 1);
+        $children = getChildren($node);
+        if (count($children) > 0) {
+            return $keyPart . makeFormattedDiffFromTree($children, $depth + 1);
         }
 
         return $keyPart . parseValue(getValue($node), $depth + 1);
     }, $tree);
 
-    return format($content, $depth);
+    return wrap($content, $depth);
 }
 
-function format(array $content, int $depth = 1): string
+function wrap(array $content, int $depth = 1): string
 {
     $start = '{' . PHP_EOL;
 
@@ -62,7 +59,7 @@ function parseValue($value, int $depth): string
             return $whitespace . $key . ': ' . parseValue($value, $depth + 1);
         }, array_keys($value), array_values($value));
 
-        return format($content, $depth);
+        return wrap($content, $depth);
     }
 
     return is_string($value) ? $value . PHP_EOL : json_encode($value) . PHP_EOL;
@@ -71,11 +68,11 @@ function parseValue($value, int $depth): string
 function makeTree(array $data): array
 {
     return array_reduce($data, function ($acc, $node) {
-        if (hasChildren($node)) {
-            $children = makeTree(getChildren($node));
+        if (Diff\hasChildren($node)) {
+            $children = makeTree(Diff\getChildren($node));
             return [
                 ...$acc,
-                makeNode(TYPE_UNTOUCHED, PREFIX_UNTOUCHED, getKey($node), Diff\getOldValue($node), $children),
+                makeNode(PREFIX_UNTOUCHED, Diff\getKey($node), Diff\getOldValue($node), $children),
             ];
         }
 
@@ -84,29 +81,29 @@ function makeTree(array $data): array
         if (Diff\TYPE_UPDATED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_REMOVED, PREFIX_REMOVED, getKey($node), Diff\getOldValue($node)),
-                makeNode(TYPE_ADDED, PREFIX_ADDED, getKey($node), Diff\getNewValue($node)),
+                makeNode(PREFIX_REMOVED, Diff\getKey($node), Diff\getOldValue($node)),
+                makeNode(PREFIX_ADDED, Diff\getKey($node), Diff\getNewValue($node)),
             ];
         }
 
         if (Diff\TYPE_UNTOUCHED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_UNTOUCHED, PREFIX_UNTOUCHED, getKey($node), Diff\getOldValue($node)),
+                makeNode(PREFIX_UNTOUCHED, Diff\getKey($node), Diff\getOldValue($node)),
             ];
         }
 
         if (Diff\TYPE_ADDED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_ADDED, PREFIX_ADDED, getKey($node), Diff\getNewValue($node)),
+                makeNode(PREFIX_ADDED, Diff\getKey($node), Diff\getNewValue($node)),
             ];
         }
 
         if (Diff\TYPE_REMOVED === $type) {
             return [
                 ...$acc,
-                makeNode(TYPE_REMOVED, PREFIX_REMOVED, getKey($node), Diff\getOldValue($node)),
+                makeNode(PREFIX_REMOVED, Diff\getKey($node), Diff\getOldValue($node)),
             ];
         }
 
@@ -115,27 +112,20 @@ function makeTree(array $data): array
 }
 
 /**
- * @param string $type
  * @param string $prefix
  * @param string $key
  * @param mixed $value
  * @param array $children
  * @return array
  */
-function makeNode(string $type, string $prefix, string $key, $value, array $children = []): array
+function makeNode(string $prefix, string $key, $value, array $children = []): array
 {
     return [
-        'type' => $type,
         'prefix' => $prefix,
         'key' => $key,
         'value' => $value,
         'children' => $children,
     ];
-}
-
-function getType(array $node): string
-{
-    return $node['type'];
 }
 
 function getPrefix(array $node): string
@@ -156,9 +146,4 @@ function getValue(array $node)
 function getChildren(array $node): array
 {
     return $node['children'];
-}
-
-function hasChildren(array $node): bool
-{
-    return count(getChildren($node)) > 0;
 }
