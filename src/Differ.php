@@ -3,9 +3,8 @@
 namespace Differ\Differ;
 
 use function Differ\Diff\makeTree;
-use function Differ\Parsers\parseJson;
-use function Differ\Parsers\parseYaml;
 use function Differ\Formatter\getFormattedDiff;
+use function Differ\Parsers\parse;
 
 function genDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
@@ -39,17 +38,4 @@ function getAbsoluteFilePath(string $path): string
     }
 
     return __DIR__ . '/../' . $path;
-}
-
-function parse(string $content, string $extension): array
-{
-    if ($extension === 'json') {
-        return parseJson($content);
-    }
-
-    if (in_array($extension, ['yml', 'yaml'], true)) {
-        return parseYaml($content);
-    }
-
-    throw new \Exception('undefined format');
 }
